@@ -5,21 +5,16 @@ when pigeons are occur. Second step nobody knows...
 
 ## Environment setup
 
-To use this library/repo, make sure that you have Python >= `3.9.*` - we recommend using [pyenv][] for managing different
-Python versions (see: [how to install pyenv on MacOS][]).
-
-This project defines dependencies in [pyproject.toml](./pyproject.toml) according to [PEP-621](https://peps.python.org/pep-0621/)
-For development create virtual env with:
-```bash
-python -m venv venv
-source venv/bin/activate
+Easy just run script:
+```shell
+./install.sh
 ```
-Then run:
-```bash
-make install
+activate env and set all necessary variables:
+```shell
+source setup_env.sh
 ```
 
-## Set up info and steps I followed
+## Set up info and steps I followed to test and ran camera inference
 
 Hardware:
 - Raspberry pi 5 8GB
@@ -35,6 +30,13 @@ my camera is upside down, so I had to use rotation parameter.
 Next, I installed AI chip using [presented manual](https://www.raspberrypi.com/documentation/accessories/ai-kit.html#install)
 and [hardware setup](https://www.raspberrypi.com/documentation/computers/ai.html#hardware-setup). To understand workflow
 I tried some demos they provide.
+
+Ran example from [hailo-rpi5-examples](https://github.com/hailo-ai/hailo-rpi5-examples)
+I had to fix source script [using issue](https://github.com/hailo-ai/hailo-rpi5-examples/issues/48).
+
+## Work log
+- In examples of `hailo-rpi5-examples` I found and script for detection using wrapped yolo what includes a label "bird" lets use it for start!
+- Rob the repository for minimum code I will need to ran and example.
 
 ## Notes
 
