@@ -3,7 +3,7 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "new-project-name" # fill this
+name = "pigeon-alert"
 version = "0.0.0"
 authors = [
     {name = "dream-team", email = "samuel.hudec@gmail.com"}, # fill this
@@ -12,9 +12,6 @@ description = "A library for better world" # fill this
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
-    "torch==1.13.1",
-    "pytorch-lightning==1.9.5",
-    "transformers==4.25.1",
     "pandas==2.*",
     "scikit-learn==1.2.2",
     "numpy==1.23.5",

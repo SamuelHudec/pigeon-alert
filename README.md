@@ -1,4 +1,7 @@
-# Base Template
+# Pigeon alert
+
+The motivation for this project is my obsession with pigeons polluting my balcony. First step is to create an alert
+when pigeons are occur. Second step nobody knows...
 
 ## Environment setup
 
@@ -15,6 +18,8 @@ Then run:
 ```bash
 make install
 ```
+
+## 
 
 [pyenv]: https://github.com/pyenv/pyenv#installationbrew
 [how to install pyenv on MacOS]: https://jordanthomasg.medium.com/python-development-on-macos-with-pyenv-2509c694a808
