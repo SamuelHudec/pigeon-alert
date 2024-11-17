@@ -19,14 +19,28 @@ Then run:
 make install
 ```
 
-## Basic set up info
+## Set up info and steps I followed
 
 Hardware:
 - Raspberry pi 5 8GB
 - M.2 HAT+ with Hailo-8L chip (13 TOPS)
 - Waveshare RPi camera (H)
 
+Test if camera works:
+```shell
+rpicam-hello --rotation 180 --timeout 0
+```
+my camera is upside down, so I had to use rotation parameter.
 
+Next, I installed AI chip using [presented manual](https://www.raspberrypi.com/documentation/accessories/ai-kit.html#install)
+and [hardware setup](https://www.raspberrypi.com/documentation/computers/ai.html#hardware-setup). To understand workflow
+I tried some demos they provide.
+
+## Notes
+
+- timelaps with [cron](https://www.raspberrypi.com/documentation/computers/camera_software.html#via-cron)
+- [picamera](https://raspberrypifoundation.github.io/picamera-zero/)
+- streaming on [youtube](https://projects.raspberrypi.org/en/projects/infrared-bird-box/9)
 
 [pyenv]: https://github.com/pyenv/pyenv#installationbrew
 [how to install pyenv on MacOS]: https://jordanthomasg.medium.com/python-development-on-macos-with-pyenv-2509c694a808
