@@ -19,7 +19,14 @@ Then run:
 make install
 ```
 
-## 
+## Basic set up info
+
+Hardware:
+- Raspberry pi 5 8GB
+- M.2 HAT+ with Hailo-8L chip (13 TOPS)
+- Waveshare RPi camera (H)
+
+
 
 [pyenv]: https://github.com/pyenv/pyenv#installationbrew
 [how to install pyenv on MacOS]: https://jordanthomasg.medium.com/python-development-on-macos-with-pyenv-2509c694a808
