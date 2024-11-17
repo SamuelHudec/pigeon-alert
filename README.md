@@ -44,5 +44,9 @@ I had to fix source script [using issue](https://github.com/hailo-ai/hailo-rpi5-
 - [picamera](https://raspberrypifoundation.github.io/picamera-zero/)
 - streaming on [youtube](https://projects.raspberrypi.org/en/projects/infrared-bird-box/9)
 
+## TODO
+- do resource what from cpp is necessary and install it 
+- also delete not necessary models
+
 [pyenv]: https://github.com/pyenv/pyenv#installationbrew
 [how to install pyenv on MacOS]: https://jordanthomasg.medium.com/python-development-on-macos-with-pyenv-2509c694a808
