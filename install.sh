@@ -20,6 +20,6 @@ sudo apt install -y rapidjson-dev v4l-utils
 ./download_resources.sh
 
 # Optional: Post-process compilation (Only for older TAPPAS versions)
-# ./compile_postprocess.sh
+./compile_postprocess.sh
 
 
