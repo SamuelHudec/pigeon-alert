@@ -1,5 +1,7 @@
 #!/bin/bash
 
+mkdir -p resources
+
 # Define download function
 download_model() {
   wget -nc "$1" -P ./resources
