@@ -1,4 +1,4 @@
-project('hailo_rpi5_examples', 'c', 'cpp',
+project('pigeon-alert', 'c', 'cpp',
         version : '1.1.1',
         default_options : [ 'warning_level=1',
                             'buildtype=release',
