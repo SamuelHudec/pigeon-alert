@@ -11,6 +11,7 @@ from hailo_rpi_common import (
     app_callback_class,
 )
 from detection_pipeline import GStreamerDetectionApp
+from datetime import datetime
 
 # -----------------------------------------------------------------------------------------------
 # User-defined class to be used in the callback function
@@ -55,7 +56,7 @@ def app_callback(pad, info, user_data):
         label = detection.get_label()
         bbox = detection.get_bbox()
         confidence = detection.get_confidence()
-        if label == "person":
+        if label == "cellphone":
             string_to_print += f"Detection: {label} {confidence:.2f}\n"
             detection_count += 1
             user_data.use_frame = True
@@ -67,16 +68,22 @@ def app_callback(pad, info, user_data):
         frame = get_numpy_from_buffer(buffer, format, width, height)
 
     if user_data.use_frame:
-        print("fuck!!!!!!!!!!!!!!!!!!")
         # Note: using imshow will not work here, as the callback function is not running in the main thread
         # Let's print the detection count to the frame
-        cv2.putText(frame, f"Detections: {detection_count}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+        #cv2.putText(frame, f"Detections: {detection_count}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2) # doesnt work !
         # Example of how to use the new_variable and new_function from the user_data
         # Let's print the new_variable and the result of the new_function to the frame
-        cv2.putText(frame, f"{user_data.new_function()} {user_data.new_variable}", (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+        #cv2.putText(frame, f"{user_data.new_function()} {user_data.new_variable}", (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
         # Convert the frame to BGR
         frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
-        user_data.set_frame(frame)
+
+        # temp test
+        os.makedirs(".cache/frames", exist_ok=True)
+        current_datetime = datetime.now()
+        formatted_datetime = current_datetime.strftime("%Y-%m-%d %H:%M:%S")
+        cv2.imwrite(f".cache/frames/{formatted_datetime}.jpg", frame)
+
+        #user_data.set_frame(frame)
 
     print(string_to_print)
     return Gst.PadProbeReturn.OK
