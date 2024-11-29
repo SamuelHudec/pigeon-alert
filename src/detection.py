@@ -65,14 +65,13 @@ def app_callback(pad, info, user_data):
             user_data.use_frame = True
 
     # If the user_data.use_frame is set to True, we can get the video frame from the buffer
-    frame = None
     if user_data.use_frame and format is not None and width is not None and height is not None:
         # Get video frame
         frame = get_numpy_from_buffer(buffer, format, width, height)
 
-    if user_data.use_frame:
+        # get unique time stamp, his will somehow control amount of pics per second (only one)
         current_datetime = datetime.now()
-        formatted_datetime = current_datetime.strftime("%Y-%m-%d %H:%M:%S")
+        formatted_datetime = current_datetime.strftime("%Y-%m-%d_%H:%M:%S")
 
         # first rotate frame, my camera is upside-down
         frame = cv2.rotate(frame, cv2.ROTATE_180)
