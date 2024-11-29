@@ -31,7 +31,7 @@ class app_callback_class:
     def __init__(self):
         self.frame_count = 0
         self.use_frame = False
-        self.frame_queue = multiprocessing.Queue(maxsize=3)
+        self.frame_queue = multiprocessing.Queue(maxsize=3) # add frames here, and than send as email/somethging
         self.running = True
 
     def increment(self):

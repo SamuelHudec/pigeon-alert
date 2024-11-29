@@ -25,7 +25,7 @@ class user_app_callback_class(app_callback_class):
     def __init__(self):
         super().__init__()
         # create clean cache folder
-        create_today_folder(CACHE_DIR)
+        self.current_cache_dir = create_today_folder(CACHE_DIR)
 
 # -----------------------------------------------------------------------------------------------
 # User-defined callback function
@@ -76,15 +76,15 @@ def app_callback(pad, info, user_data):
         frame = cv2.rotate(frame, cv2.ROTATE_180)
 
         # Let's print the detection count to the frame
-        cv2.putText(frame, f"{formatted_datetime}\nDetections: {detection_count}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+        cv2.putText(frame, f"{formatted_datetime}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
         # Convert the frame to BGR
         frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
 
-        # temp test
-        cv2.imwrite(f"{CACHE_DIR}/{formatted_datetime}.jpg", frame)
+        # save frame
+        cv2.imwrite(f"{user_data.current_cache_dir}/{formatted_datetime}.jpg", frame)
 
-        #user_data.set_frame(frame)
+        # user_data.set_frame(frame) # send frame to queue maybe better option
 
     print(string_to_print)
     return Gst.PadProbeReturn.OK

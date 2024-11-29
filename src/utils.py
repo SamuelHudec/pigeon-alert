@@ -13,7 +13,9 @@ def create_and_clean_folder(folder_path: str) -> None:
         print(f"Folder '{folder_path}' created.")
 
 
-def create_today_folder(folder_path: str) -> None:
+def create_today_folder(folder_path: str) -> str:
     current_datetime = datetime.now()
     formatted_date = current_datetime.strftime("%Y-%m-%d")
-    create_and_clean_folder(os.path.join(folder_path, formatted_date))
+    current_cache_dir = os.path.join(folder_path, formatted_date)
+    create_and_clean_folder(current_cache_dir)
+    return current_cache_dir
