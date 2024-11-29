@@ -1,7 +1,7 @@
 import gi
 
-from src.config import CACHE_DIR
-from src.utils import create_and_clean_folder
+from config import CACHE_DIR
+from utils import create_and_clean_folder
 
 gi.require_version('Gst', '1.0')
 from gi.repository import Gst, GLib
