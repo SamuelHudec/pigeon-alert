@@ -45,7 +45,7 @@ python src/detection.py -i rpi
 ## Work log
 - In examples of `hailo-rpi5-examples` I found and script for detection using wrapped yolo what includes a label "bird" lets use it for start!
 - Rob the repository for minimum code I will need to ran and example.
-- if detected label save frame
+- if detected label save frame and camera rotation
 
 ## Notes
 
@@ -54,8 +54,7 @@ python src/detection.py -i rpi
 - streaming on [youtube](https://projects.raspberrypi.org/en/projects/infrared-bird-box/9)
 
 # TODO
-- camera rotation
-- add bird to detect and disable display
+- disable display
 - polish scripts with respect of mypy of some other conventions
 - connect to remote pycharm for faster development
 

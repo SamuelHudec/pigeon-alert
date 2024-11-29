@@ -68,12 +68,12 @@ def app_callback(pad, info, user_data):
         frame = get_numpy_from_buffer(buffer, format, width, height)
 
     if user_data.use_frame:
-        # Note: using imshow will not work here, as the callback function is not running in the main thread
+        # first rotate frame, my camera is upside-down
+        frame = cv2.rotate(frame, cv2.ROTATE_180)
+
         # Let's print the detection count to the frame
         cv2.putText(frame, f"Detections: {detection_count}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-        # Example of how to use the new_variable and new_function from the user_data
-        # Let's print the new_variable and the result of the new_function to the frame
-        cv2.putText(frame, f"{user_data.new_function()} {user_data.new_variable}", (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
         # Convert the frame to BGR
         frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
 

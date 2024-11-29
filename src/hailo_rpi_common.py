@@ -126,7 +126,7 @@ def get_default_parser():
     )
     parser.add_argument("--use-frame", "-u", action="store_true", help="Use frame from the callback function")
     parser.add_argument("--show-fps", "-f", action="store_true", help="Print FPS on sink")
-    parser.add_argument(
+    parser.add_argument( # not used
             "--arch",
             default=None,
             choices=['hailo8', 'hailo8l'],
