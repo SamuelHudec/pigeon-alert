@@ -55,6 +55,7 @@ python src/detection.py -i rpi
 
 # TODO
 - camera rotation
+- add bird to detect and disable display
 - polish scripts with respect of mypy of some other conventions
 - connect to remote pycharm for faster development
 
