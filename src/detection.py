@@ -56,7 +56,7 @@ def app_callback(pad, info, user_data):
         label = detection.get_label()
         bbox = detection.get_bbox()
         confidence = detection.get_confidence()
-        if label == "cellphone":
+        if label == "person":
             string_to_print += f"Detection: {label} {confidence:.2f}\n"
             detection_count += 1
             user_data.use_frame = True
