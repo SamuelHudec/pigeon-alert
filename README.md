@@ -45,6 +45,7 @@ python src/detection.py -i rpi
 ## Work log
 - In examples of `hailo-rpi5-examples` I found and script for detection using wrapped yolo what includes a label "bird" lets use it for start!
 - Rob the repository for minimum code I will need to ran and example.
+- if detected label save frame
 
 ## Notes
 
@@ -54,7 +55,6 @@ python src/detection.py -i rpi
 
 # TODO
 - camera rotation
-- frame saving of bird
 - polish scripts with respect of mypy of some other conventions
 - connect to remote pycharm for faster development
 
