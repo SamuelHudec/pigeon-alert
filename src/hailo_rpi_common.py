@@ -342,6 +342,7 @@ def USER_CALLBACK_PIPELINE(name='identity_callback'):
 # GStreamerApp class
 # -----------------------------------------------------------------------------------------------
 class GStreamerApp:
+    # this is base class should be added as base properly before publishing
     def __init__(self, args, user_data: app_callback_class):
         # Set the process title
         setproctitle.setproctitle("Hailo Python App")

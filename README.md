@@ -54,6 +54,9 @@ python src/detection.py -i rpi
 
 # TODO
 - camera rotation
+- frame saving of bird
+- polish scripts with respect of mypy of some other conventions
+- connect to remote pycharm for faster development
 
 [pyenv]: https://github.com/pyenv/pyenv#installationbrew
 [how to install pyenv on MacOS]: https://jordanthomasg.medium.com/python-development-on-macos-with-pyenv-2509c694a808

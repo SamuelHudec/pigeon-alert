@@ -98,7 +98,7 @@ class GStreamerDetectionApp(GStreamerApp):
             config_json=self.labels_json,
             additional_params=self.thresholds_str)
         user_callback_pipeline = USER_CALLBACK_PIPELINE()
-        display_pipeline = DISPLAY_PIPELINE(video_sink=self.video_sink, sync=self.sync, show_fps=self.show_fps)
+        display_pipeline = DISPLAY_PIPELINE(video_sink=self.video_sink, sync=self.sync, show_fps=self.show_fps) # ak bude treba odpojiť display
         pipeline_string = (
             f'{source_pipeline} '
             f'{detection_pipeline} ! '

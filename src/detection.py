@@ -63,6 +63,7 @@ def app_callback(pad, info, user_data):
             string_to_print += f"Detection: {label} {confidence:.2f}\n"
             detection_count += 1
     if user_data.use_frame:
+        print("fuck!!!!")
         # Note: using imshow will not work here, as the callback function is not running in the main thread
         # Let's print the detection count to the frame
         cv2.putText(frame, f"Detections: {detection_count}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
