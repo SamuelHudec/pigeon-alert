@@ -43,15 +43,11 @@ def app_callback(pad, info, user_data):
     # Get the caps from the pad
     format, width, height = get_caps_from_pad(pad)
 
-    # If the user_data.use_frame is set to True, we can get the video frame from the buffer
-    frame = None
-    if user_data.use_frame and format is not None and width is not None and height is not None:
-        # Get video frame
-        frame = get_numpy_from_buffer(buffer, format, width, height)
-
     # Get the detections from the buffer
     roi = hailo.get_roi_from_buffer(buffer)
     detections = roi.get_objects_typed(hailo.HAILO_DETECTION)
+
+    user_data.use_frame = False
 
     # Parse the detections
     detection_count = 0
@@ -62,8 +58,16 @@ def app_callback(pad, info, user_data):
         if label == "person":
             string_to_print += f"Detection: {label} {confidence:.2f}\n"
             detection_count += 1
+            user_data.use_frame = True
+
+    # If the user_data.use_frame is set to True, we can get the video frame from the buffer
+    frame = None
+    if user_data.use_frame and format is not None and width is not None and height is not None:
+        # Get video frame
+        frame = get_numpy_from_buffer(buffer, format, width, height)
+
     if user_data.use_frame:
-        print("fuck!!!!")
+        print("fuck!!!!!!!!!!!!!!!!!!")
         # Note: using imshow will not work here, as the callback function is not running in the main thread
         # Let's print the detection count to the frame
         cv2.putText(frame, f"Detections: {detection_count}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
