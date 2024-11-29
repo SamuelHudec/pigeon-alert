@@ -1,4 +1,8 @@
 import gi
+
+from src.config import CACHE_DIR
+from src.utils import create_and_clean_folder
+
 gi.require_version('Gst', '1.0')
 from gi.repository import Gst, GLib
 import os
@@ -50,6 +54,8 @@ class GStreamerDetectionApp(GStreamerApp):
         nms_score_threshold = 0.3
         nms_iou_threshold = 0.45
 
+        # create clean cache folder
+        create_and_clean_folder(CACHE_DIR)
 
         # Determine the architecture if not specified
         if args.arch is None:

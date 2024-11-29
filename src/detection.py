@@ -1,4 +1,7 @@
 import gi
+
+from src.config import CACHE_DIR
+
 gi.require_version('Gst', '1.0')
 from gi.repository import Gst, GLib
 import os
@@ -68,20 +71,20 @@ def app_callback(pad, info, user_data):
         frame = get_numpy_from_buffer(buffer, format, width, height)
 
     if user_data.use_frame:
+        current_datetime = datetime.now()
+        formatted_datetime = current_datetime.strftime("%Y-%m-%d %H:%M:%S")
+
         # first rotate frame, my camera is upside-down
         frame = cv2.rotate(frame, cv2.ROTATE_180)
 
         # Let's print the detection count to the frame
-        cv2.putText(frame, f"Detections: {detection_count}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+        cv2.putText(frame, f"{formatted_datetime}\nDetections: {detection_count}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
         # Convert the frame to BGR
         frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
 
         # temp test
-        os.makedirs(".cache/frames", exist_ok=True)
-        current_datetime = datetime.now()
-        formatted_datetime = current_datetime.strftime("%Y-%m-%d %H:%M:%S")
-        cv2.imwrite(f".cache/frames/{formatted_datetime}.jpg", frame)
+        cv2.imwrite(f"{CACHE_DIR}/{formatted_datetime}.jpg", frame)
 
         #user_data.set_frame(frame)
 
