@@ -1,6 +1,7 @@
 import gi
 
 from config import CACHE_DIR
+from utils import create_today_folder
 
 gi.require_version('Gst', '1.0')
 from gi.repository import Gst, GLib
@@ -23,10 +24,8 @@ from datetime import datetime
 class user_app_callback_class(app_callback_class):
     def __init__(self):
         super().__init__()
-        self.new_variable = 42  # New variable example
-
-    def new_function(self):  # New function example
-        return "The meaning of life is: "
+        # create clean cache folder
+        create_today_folder(CACHE_DIR)
 
 # -----------------------------------------------------------------------------------------------
 # User-defined callback function

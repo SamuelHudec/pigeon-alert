@@ -1,8 +1,9 @@
 import os
 import shutil
+from datetime import datetime
 
 
-def create_and_clean_folder(folder_path):
+def create_and_clean_folder(folder_path: str) -> None:
     if os.path.exists(folder_path):
         shutil.rmtree(folder_path)
         os.makedirs(folder_path, exist_ok=True)
@@ -10,3 +11,9 @@ def create_and_clean_folder(folder_path):
     else:
         os.makedirs(folder_path, exist_ok=True)
         print(f"Folder '{folder_path}' created.")
+
+
+def create_today_folder(folder_path: str) -> None:
+    current_datetime = datetime.now()
+    formatted_date = current_datetime.strftime("%Y-%m-%d")
+    create_and_clean_folder(os.path.join(folder_path, formatted_date))
