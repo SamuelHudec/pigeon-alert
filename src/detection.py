@@ -26,6 +26,7 @@ class user_app_callback_class(app_callback_class):
         super().__init__()
         # create clean cache folder
         self.current_cache_dir = create_today_folder(CACHE_DIR)
+        #self.start_time = datetime.now()
 
 # -----------------------------------------------------------------------------------------------
 # User-defined callback function
@@ -62,6 +63,7 @@ def app_callback(pad, info, user_data):
             string_to_print += f"Detection: {label} {confidence:.2f}\n"
             detection_count += 1
             user_data.use_frame = True
+            print(string_to_print)
 
     # If the user_data.use_frame is set to True, we can get the video frame from the buffer
     if user_data.use_frame and format is not None and width is not None and height is not None:
@@ -85,8 +87,6 @@ def app_callback(pad, info, user_data):
         cv2.imwrite(f"{user_data.current_cache_dir}/{formatted_datetime}.jpg", frame)
 
         # user_data.set_frame(frame) # send frame to queue maybe better option
-
-    print(string_to_print)
     return Gst.PadProbeReturn.OK
 
 if __name__ == "__main__":

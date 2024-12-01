@@ -1,6 +1,10 @@
 import os
 import shutil
-from datetime import datetime
+
+import pytz
+from astral import LocationInfo
+from astral.sun import sun
+from datetime import datetime, date
 
 
 def create_and_clean_folder(folder_path: str) -> None:
@@ -19,3 +23,10 @@ def create_today_folder(folder_path: str) -> str:
     current_cache_dir = os.path.join(folder_path, formatted_date)
     create_and_clean_folder(current_cache_dir)
     return current_cache_dir
+
+def is_daylight() -> bool:
+    city = LocationInfo("Prague", "Czech Republic", "Europe/Prague", 50.0755, 14.4378)
+    s = sun(city.observer, date=date.today())
+    tz = pytz.timezone(city.timezone)
+    now = datetime.now(tz=tz)
+    return s['sunrise'] <= now <= s['sunset']
