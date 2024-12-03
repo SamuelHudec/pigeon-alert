@@ -1,7 +1,7 @@
 import gi
 
 from config import CACHE_DIR
-from utils import create_today_folder
+from utils import create_today_folder, is_daylight
 
 gi.require_version('Gst', '1.0')
 from gi.repository import Gst, GLib
@@ -26,7 +26,6 @@ class user_app_callback_class(app_callback_class):
         super().__init__()
         # create clean cache folder
         self.current_cache_dir = create_today_folder(CACHE_DIR)
-        #self.start_time = datetime.now()
 
 # -----------------------------------------------------------------------------------------------
 # User-defined callback function
@@ -91,6 +90,7 @@ def app_callback(pad, info, user_data):
 
 if __name__ == "__main__":
     # Create an instance of the user app callback class
-    user_data = user_app_callback_class()
-    app = GStreamerDetectionApp(app_callback, user_data)
-    app.run()
+    if is_daylight():
+        user_data = user_app_callback_class()
+        app = GStreamerDetectionApp(app_callback, user_data)
+        app.run()

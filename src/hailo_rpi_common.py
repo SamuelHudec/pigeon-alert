@@ -142,7 +142,7 @@ def get_default_parser():
         help="Disables display sink sync, will run as fast as possible. Relevant when using file source."
     )
     parser.add_argument("--dump-dot", action="store_true", help="Dump the pipeline graph to a dot file pipeline.dot")
-    parser.add_argument("--set-time", "-t", type=int, default=None, help="You can set timer for your loop")
+    parser.add_argument("--set-time", "-t", type=int, default=None, help="Timer in seconds.")
     return parser
 
 #---------------------------------------------------------

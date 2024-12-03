@@ -24,6 +24,7 @@ def create_today_folder(folder_path: str) -> str:
     create_and_clean_folder(current_cache_dir)
     return current_cache_dir
 
+
 def is_daylight() -> bool:
     city = LocationInfo("Prague", "Czech Republic", "Europe/Prague", 50.0755, 14.4378)
     s = sun(city.observer, date=date.today())
