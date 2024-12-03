@@ -142,6 +142,7 @@ def get_default_parser():
         help="Disables display sink sync, will run as fast as possible. Relevant when using file source."
     )
     parser.add_argument("--dump-dot", action="store_true", help="Dump the pipeline graph to a dot file pipeline.dot")
+    parser.add_argument("--set-time", "-t", type=int, default=None, action="store_true", help="")
     return parser
 
 #---------------------------------------------------------
@@ -449,6 +450,19 @@ class GStreamerApp:
         self.pipeline.set_state(Gst.State.NULL)
         GLib.idle_add(self.loop.quit)
 
+    def stop_loop(self):
+        """
+        just copy paseted from shutdown method for purpose of outomatic quit
+        :return:
+        """
+        self.pipeline.set_state(Gst.State.PAUSED)
+        GLib.usleep(100000)  # 0.1 second delay
+
+        self.pipeline.set_state(Gst.State.READY)
+        GLib.usleep(100000)  # 0.1 second delay
+
+        self.pipeline.set_state(Gst.State.NULL)
+        GLib.idle_add(self.loop.quit)
 
     def get_pipeline_string(self):
         # This is a placeholder function that should be overridden by the child class
@@ -495,6 +509,10 @@ class GStreamerApp:
         # Dump dot file
         if self.options_menu.dump_dot:
             GLib.timeout_add_seconds(3, self.dump_dot_file)
+
+        # time out
+        if self.options_menu.set_time:
+            GLib.timeout_add_seconds(self.options_menu.set_time, self.stop_loop)
 
         # Run the GLib event loop
         self.loop.run()
