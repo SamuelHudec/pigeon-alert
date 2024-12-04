@@ -34,6 +34,9 @@ I tried some demos they provide.
 Ran example from [hailo-rpi5-examples](https://github.com/hailo-ai/hailo-rpi5-examples)
 I had to fix source script [using issue](https://github.com/hailo-ai/hailo-rpi5-examples/issues/48).
 
+for a development purpose i tried to install at least gobjects on mac, 
+you have to install run `brew install pygobject3 gtk4`. Than run `make install-dev`
+
 ## Usage
 
 ```shell
