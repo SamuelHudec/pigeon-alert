@@ -1,10 +1,10 @@
 import os
 import shutil
+from datetime import date, datetime
 
 import pytz
 from astral import LocationInfo
 from astral.sun import sun
-from datetime import datetime, date
 
 
 def create_and_clean_folder(folder_path: str) -> None:
@@ -30,4 +30,4 @@ def is_daylight() -> bool:
     tz = pytz.timezone(city.timezone)
     s = sun(city.observer, date=date.today(), tzinfo=tz)
     now = datetime.now(tz=tz)
-    return s['sunrise'] <= now <= s['sunset']
+    return s["sunrise"] <= now <= s["sunset"]

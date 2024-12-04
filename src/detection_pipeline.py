@@ -1,34 +1,28 @@
 import gi
 
-gi.require_version('Gst', '1.0')
-from gi.repository import Gst, GLib
-import os
+gi.require_version("Gst", "1.0")
 import argparse
 import multiprocessing
+import os
+import time
+
+import cv2
+import hailo
 import numpy as np
 import setproctitle
-import cv2
-import time
-import hailo
-from hailo_rpi_common import (
-    get_default_parser,
-    QUEUE,
-    SOURCE_PIPELINE,
-    INFERENCE_PIPELINE,
-    INFERENCE_PIPELINE_WRAPPER,
-    USER_CALLBACK_PIPELINE,
-    DISPLAY_PIPELINE,
-    GStreamerApp,
-    app_callback_class,
-    dummy_callback,
-    detect_hailo_arch,
-)
+from gi.repository import GLib, Gst
 
-
+from hailo_rpi_common import (DISPLAY_PIPELINE, INFERENCE_PIPELINE,
+                              INFERENCE_PIPELINE_WRAPPER, QUEUE,
+                              SOURCE_PIPELINE, USER_CALLBACK_PIPELINE,
+                              GStreamerApp, app_callback_class,
+                              detect_hailo_arch, dummy_callback,
+                              get_default_parser)
 
 # -----------------------------------------------------------------------------------------------
 # User Gstreamer Application
 # -----------------------------------------------------------------------------------------------
+
 
 # This class inherits from the hailo_rpi_common.GStreamerApp class
 class GStreamerDetectionApp(GStreamerApp):
@@ -55,23 +49,28 @@ class GStreamerDetectionApp(GStreamerApp):
         if args.arch is None:
             detected_arch = detect_hailo_arch()
             if detected_arch is None:
-                raise ValueError("Could not auto-detect Hailo architecture. Please specify --arch manually.")
+                raise ValueError(
+                    "Could not auto-detect Hailo architecture. Please specify --arch manually."
+                )
             self.arch = detected_arch
             print(f"Auto-detected Hailo architecture: {self.arch}")
         else:
             self.arch = args.arch
 
-
         if args.hef_path is not None:
             self.hef_path = args.hef_path
         # Set the HEF file path based on the arch
         elif self.arch == "hailo8":
-            self.hef_path = os.path.join(self.current_path, '../resources/yolov8m.hef')
+            self.hef_path = os.path.join(self.current_path, "../resources/yolov8m.hef")
         else:  # hailo8l
-            self.hef_path = os.path.join(self.current_path, '../resources/yolov8s_h8l.hef')
+            self.hef_path = os.path.join(
+                self.current_path, "../resources/yolov8s_h8l.hef"
+            )
 
         # Set the post-processing shared object file
-        self.post_process_so = os.path.join(self.current_path, '../resources/libyolo_hailortpp_postprocess.so')
+        self.post_process_so = os.path.join(
+            self.current_path, "../resources/libyolo_hailortpp_postprocess.so"
+        )
 
         # User-defined label JSON file
         self.labels_json = args.labels_json
@@ -96,17 +95,21 @@ class GStreamerDetectionApp(GStreamerApp):
             post_process_so=self.post_process_so,
             batch_size=self.batch_size,
             config_json=self.labels_json,
-            additional_params=self.thresholds_str)
+            additional_params=self.thresholds_str,
+        )
         user_callback_pipeline = USER_CALLBACK_PIPELINE()
-        display_pipeline = DISPLAY_PIPELINE(video_sink=self.video_sink, sync=self.sync, show_fps=self.show_fps) # ak bude treba odpojiť display
+        display_pipeline = DISPLAY_PIPELINE(
+            video_sink=self.video_sink, sync=self.sync, show_fps=self.show_fps
+        )  # ak bude treba odpojiť display
         pipeline_string = (
-            f'{source_pipeline} '
-            f'{detection_pipeline} ! '
-            f'{user_callback_pipeline} ! '
-            f'{display_pipeline}'
+            f"{source_pipeline} "
+            f"{detection_pipeline} ! "
+            f"{user_callback_pipeline} ! "
+            f"{display_pipeline}"
         )
         print(pipeline_string)
         return pipeline_string
+
 
 if __name__ == "__main__":
     # Create an instance of the user app callback class

@@ -1,22 +1,27 @@
 import sys
+
 import gi
-gi.require_version('Gst', '1.0')
-from gi.repository import Gst, GLib, GObject
-import os
+
+gi.require_version("Gst", "1.0")
 import argparse
 import multiprocessing
-import numpy as np
-import setproctitle
-import cv2
-import time
+import os
 import signal
 import subprocess
+import time
+
+import cv2
+import numpy as np
+import setproctitle
+from gi.repository import GLib, GObject, Gst
 
 # Try to import hailo python module
 try:
     import hailo
 except ImportError:
-    sys.exit("Failed to import hailo python module. Make sure you are in hailo virtual environment.")
+    sys.exit(
+        "Failed to import hailo python module. Make sure you are in hailo virtual environment."
+    )
 
 # -----------------------------------------------------------------------------------------------
 # User-defined class to be used in the callback function
@@ -27,11 +32,14 @@ except ImportError:
 # 2. Setup a multiprocessing queue to pass the frame to the main thread
 # Additional variables and functions can be added to this class as needed
 
+
 class app_callback_class:
     def __init__(self):
         self.frame_count = 0
         self.use_frame = False
-        self.frame_queue = multiprocessing.Queue(maxsize=3) # add frames here, and than send as email/somethging
+        self.frame_queue = multiprocessing.Queue(
+            maxsize=3
+        )  # add frames here, and than send as email/somethging
         self.running = True
 
     def increment(self):
@@ -50,6 +58,7 @@ class app_callback_class:
         else:
             return None
 
+
 def dummy_callback(pad, info, user_data):
     """
     A minimal dummy callback function that returns immediately.
@@ -64,13 +73,16 @@ def dummy_callback(pad, info, user_data):
     """
     return Gst.PadProbeReturn.OK
 
+
 # -----------------------------------------------------------------------------------------------
 # Common functions
 # -----------------------------------------------------------------------------------------------
 def detect_hailo_arch():
     try:
         # Run the hailortcli command to get device information
-        result = subprocess.run(['hailortcli', 'fw-control', 'identify'], capture_output=True, text=True)
+        result = subprocess.run(
+            ["hailortcli", "fw-control", "identify"], capture_output=True, text=True
+        )
 
         # Check if the command was successful
         if result.returncode != 0:
@@ -78,7 +90,7 @@ def detect_hailo_arch():
             return None
 
         # Search for the "Device Architecture" line in the output
-        for line in result.stdout.split('\n'):
+        for line in result.stdout.split("\n"):
             if "Device Architecture" in line:
                 if "HAILO8L" in line:
                     return "hailo8l"
@@ -91,6 +103,7 @@ def detect_hailo_arch():
         print(f"An error occurred while detecting Hailo architecture: {e}")
         return None
 
+
 def get_caps_from_pad(pad: Gst.Pad):
     caps = pad.get_current_caps()
     if caps:
@@ -98,12 +111,13 @@ def get_caps_from_pad(pad: Gst.Pad):
         structure = caps.get_structure(0)
         if structure:
             # Extracting some common properties
-            format = structure.get_value('format')
-            width = structure.get_value('width')
-            height = structure.get_value('height')
+            format = structure.get_value("format")
+            width = structure.get_value("width")
+            height = structure.get_value("height")
             return format, width, height
     else:
         return None, None, None
+
 
 # This function is used to display the user data frame
 def display_user_data_frame(user_data: app_callback_class):
@@ -114,53 +128,74 @@ def display_user_data_frame(user_data: app_callback_class):
         cv2.waitKey(1)
     cv2.destroyAllWindows()
 
+
 def get_default_parser():
     parser = argparse.ArgumentParser(description="Hailo App Help")
     current_path = os.path.dirname(os.path.abspath(__file__))
-    default_video_source = os.path.join(current_path, '../resources/detection0.mp4')
+    default_video_source = os.path.join(current_path, "../resources/detection0.mp4")
     parser.add_argument(
-        "--input", "-i", type=str, default=default_video_source,
+        "--input",
+        "-i",
+        type=str,
+        default=default_video_source,
         help="Input source. Can be a file, USB or RPi camera (CSI camera module). \
         For RPi camera use '-i rpi' (Still in Beta). \
-        Defaults to example video resources/detection0.mp4"
+        Defaults to example video resources/detection0.mp4",
     )
-    parser.add_argument("--use-frame", "-u", action="store_true", help="Use frame from the callback function")
-    parser.add_argument("--show-fps", "-f", action="store_true", help="Print FPS on sink")
-    parser.add_argument( # not used
-            "--arch",
-            default=None,
-            choices=['hailo8', 'hailo8l'],
-            help="Specify the Hailo architecture (hailo8 or hailo8l). Default is None , app will run check.",
-        )
     parser.add_argument(
-            "--hef-path",
-            default=None,
-            help="Path to HEF file",
-        )
-    parser.add_argument(
-        "--disable-sync", action="store_true",
-        help="Disables display sink sync, will run as fast as possible. Relevant when using file source."
+        "--use-frame",
+        "-u",
+        action="store_true",
+        help="Use frame from the callback function",
     )
-    parser.add_argument("--dump-dot", action="store_true", help="Dump the pipeline graph to a dot file pipeline.dot")
-    parser.add_argument("--set-time", "-t", type=int, default=None, help="Timer in seconds.")
+    parser.add_argument(
+        "--show-fps", "-f", action="store_true", help="Print FPS on sink"
+    )
+    parser.add_argument(  # not used
+        "--arch",
+        default=None,
+        choices=["hailo8", "hailo8l"],
+        help="Specify the Hailo architecture (hailo8 or hailo8l). Default is None , app will run check.",
+    )
+    parser.add_argument(
+        "--hef-path",
+        default=None,
+        help="Path to HEF file",
+    )
+    parser.add_argument(
+        "--disable-sync",
+        action="store_true",
+        help="Disables display sink sync, will run as fast as possible. Relevant when using file source.",
+    )
+    parser.add_argument(
+        "--dump-dot",
+        action="store_true",
+        help="Dump the pipeline graph to a dot file pipeline.dot",
+    )
+    parser.add_argument(
+        "--set-time", "-t", type=int, default=None, help="Timer in seconds."
+    )
     return parser
 
-#---------------------------------------------------------
+
+# ---------------------------------------------------------
 # Pipeline helper functions
-#---------------------------------------------------------
+# ---------------------------------------------------------
+
 
 def get_source_type(input_source):
     # This function will return the source type based on the input source
     # return values can be "file", "mipi" or "usb"
     if input_source.startswith("/dev/video"):
-        return 'usb'
+        return "usb"
     else:
         if input_source.startswith("rpi"):
-            return 'rpi'
+            return "rpi"
         else:
-            return 'file'
+            return "file"
 
-def QUEUE(name, max_size_buffers=3, max_size_bytes=0, max_size_time=0, leaky='no'):
+
+def QUEUE(name, max_size_buffers=3, max_size_bytes=0, max_size_time=0, leaky="no"):
     """
     Creates a GStreamer queue element string with the specified parameters.
 
@@ -174,10 +209,13 @@ def QUEUE(name, max_size_buffers=3, max_size_bytes=0, max_size_time=0, leaky='no
     Returns:
         str: A string representing the GStreamer queue element with the specified parameters.
     """
-    q_string = f'queue name={name} leaky={leaky} max-size-buffers={max_size_buffers} max-size-bytes={max_size_bytes} max-size-time={max_size_time} '
+    q_string = f"queue name={name} leaky={leaky} max-size-buffers={max_size_buffers} max-size-bytes={max_size_bytes} max-size-time={max_size_time} "
     return q_string
 
-def SOURCE_PIPELINE(video_source, video_format='RGB', video_width=640, video_height=640, name='source'):
+
+def SOURCE_PIPELINE(
+    video_source, video_format="RGB", video_width=640, video_height=640, name="source"
+):
     """
     Creates a GStreamer pipeline string for the video source.
 
@@ -193,35 +231,44 @@ def SOURCE_PIPELINE(video_source, video_format='RGB', video_width=640, video_hei
     """
     source_type = get_source_type(video_source)
 
-    if source_type == 'rpi':
+    if source_type == "rpi":
         source_element = (
-            f'libcamerasrc name={name} ! '
-            f'video/x-raw, format={video_format}, width=1536, height=864 ! '
+            f"libcamerasrc name={name} ! "
+            f"video/x-raw, format={video_format}, width=1536, height=864 ! "
         )
-    elif source_type == 'usb':
+    elif source_type == "usb":
         source_element = (
-            f'v4l2src device={video_source} name={name} ! '
-            'video/x-raw, width=640, height=480 ! '
+            f"v4l2src device={video_source} name={name} ! "
+            "video/x-raw, width=640, height=480 ! "
         )
     else:
         source_element = (
             f'filesrc location="{video_source}" name={name} ! '
             f'{QUEUE(name=f"{name}_queue_dec264")} ! '
-            'qtdemux ! h264parse ! avdec_h264 max-threads=2 ! '
+            "qtdemux ! h264parse ! avdec_h264 max-threads=2 ! "
         )
     source_pipeline = (
-        f'{source_element} '
+        f"{source_element} "
         f'{QUEUE(name=f"{name}_scale_q")} ! '
-        f'videoscale name={name}_videoscale n-threads=2 ! '
+        f"videoscale name={name}_videoscale n-threads=2 ! "
         f'{QUEUE(name=f"{name}_convert_q")} ! '
-        f'videoconvert n-threads=3 name={name}_convert qos=false ! '
-        f'video/x-raw, format={video_format}, pixel-aspect-ratio=1/1 ! '
+        f"videoconvert n-threads=3 name={name}_convert qos=false ! "
+        f"video/x-raw, format={video_format}, pixel-aspect-ratio=1/1 ! "
         # f'video/x-raw, format={video_format}, width={video_width}, height={video_height} ! '
     )
 
     return source_pipeline
 
-def INFERENCE_PIPELINE(hef_path, post_process_so, batch_size=1, config_json=None, post_function_name=None, additional_params='', name='inference'):
+
+def INFERENCE_PIPELINE(
+    hef_path,
+    post_process_so,
+    batch_size=1,
+    config_json=None,
+    post_function_name=None,
+    additional_params="",
+    name="inference",
+):
     """
     Creates a GStreamer pipeline string for inference and post-processing using a user-provided shared object file.
     This pipeline includes videoscale and videoconvert elements to convert the video frame to the required format.
@@ -241,32 +288,35 @@ def INFERENCE_PIPELINE(hef_path, post_process_so, batch_size=1, config_json=None
     """
     # Configure config path if provided
     if config_json is not None:
-        config_str = f' config-path={config_json} '
+        config_str = f" config-path={config_json} "
     else:
-        config_str = ''
+        config_str = ""
 
     # Configure function name if provided
     if post_function_name is not None:
-        function_name_str = f' function-name={post_function_name} '
+        function_name_str = f" function-name={post_function_name} "
     else:
-        function_name_str = ''
+        function_name_str = ""
 
     # Construct the inference pipeline string
     inference_pipeline = (
         f'{QUEUE(name=f"{name}_scale_q")} ! '
-        f'videoscale name={name}_videoscale n-threads=2 qos=false ! '
+        f"videoscale name={name}_videoscale n-threads=2 qos=false ! "
         f'{QUEUE(name=f"{name}_convert_q")} ! '
-        f'video/x-raw, pixel-aspect-ratio=1/1 ! '
-        f'videoconvert name={name}_videoconvert n-threads=2 ! '
+        f"video/x-raw, pixel-aspect-ratio=1/1 ! "
+        f"videoconvert name={name}_videoconvert n-threads=2 ! "
         f'{QUEUE(name=f"{name}_hailonet_q")} ! '
-        f'hailonet name={name}_hailonet hef-path={hef_path} batch-size={batch_size} {additional_params} force-writable=true ! '
+        f"hailonet name={name}_hailonet hef-path={hef_path} batch-size={batch_size} {additional_params} force-writable=true ! "
         f'{QUEUE(name=f"{name}_hailofilter_q")} ! '
-        f'hailofilter name={name}_hailofilter so-path={post_process_so} {config_str} {function_name_str} qos=false '
+        f"hailofilter name={name}_hailofilter so-path={post_process_so} {config_str} {function_name_str} qos=false "
     )
 
     return inference_pipeline
 
-def INFERENCE_PIPELINE_WRAPPER(inner_pipeline, bypass_max_size_buffers=20, name='inference_wrapper'):
+
+def INFERENCE_PIPELINE_WRAPPER(
+    inner_pipeline, bypass_max_size_buffers=20, name="inference_wrapper"
+):
     """
     Creates a GStreamer pipeline string that wraps an inner pipeline with a hailocropper and hailoaggregator.
     This allows to keep the original video resolution and color-space (format) of the input frame.
@@ -281,22 +331,27 @@ def INFERENCE_PIPELINE_WRAPPER(inner_pipeline, bypass_max_size_buffers=20, name=
         str: A string representing the GStreamer pipeline for the inference wrapper.
     """
     # Get the directory for post-processing shared objects
-    tappas_post_process_dir = os.environ.get('TAPPAS_POST_PROC_DIR', '')
-    whole_buffer_crop_so = os.path.join(tappas_post_process_dir, 'cropping_algorithms/libwhole_buffer.so')
+    tappas_post_process_dir = os.environ.get("TAPPAS_POST_PROC_DIR", "")
+    whole_buffer_crop_so = os.path.join(
+        tappas_post_process_dir, "cropping_algorithms/libwhole_buffer.so"
+    )
 
     # Construct the inference wrapper pipeline string
     inference_wrapper_pipeline = (
         f'{QUEUE(name=f"{name}_input_q")} ! '
-        f'hailocropper name={name}_crop so-path={whole_buffer_crop_so} function-name=create_crops use-letterbox=true resize-method=inter-area internal-offset=true '
-        f'hailoaggregator name={name}_agg '
+        f"hailocropper name={name}_crop so-path={whole_buffer_crop_so} function-name=create_crops use-letterbox=true resize-method=inter-area internal-offset=true "
+        f"hailoaggregator name={name}_agg "
         f'{name}_crop. ! {QUEUE(max_size_buffers=bypass_max_size_buffers, name=f"{name}_bypass_q")} ! {name}_agg.sink_0 '
-        f'{name}_crop. ! {inner_pipeline} ! {name}_agg.sink_1 '
+        f"{name}_crop. ! {inner_pipeline} ! {name}_agg.sink_1 "
         f'{name}_agg. ! {QUEUE(name=f"{name}_output_q")} '
     )
 
     return inference_wrapper_pipeline
 
-def DISPLAY_PIPELINE(video_sink='xvimagesink', sync='true', show_fps='false', name='hailo_display'):
+
+def DISPLAY_PIPELINE(
+    video_sink="xvimagesink", sync="true", show_fps="false", name="hailo_display"
+):
     """
     Creates a GStreamer pipeline string for displaying the video.
     It includes the hailooverlay plugin to draw bounding boxes and labels on the video.
@@ -313,16 +368,17 @@ def DISPLAY_PIPELINE(video_sink='xvimagesink', sync='true', show_fps='false', na
     # Construct the display pipeline string
     display_pipeline = (
         f'{QUEUE(name=f"{name}_hailooverlay_q")} ! '
-        f'hailooverlay name={name}_hailooverlay ! '
+        f"hailooverlay name={name}_hailooverlay ! "
         f'{QUEUE(name=f"{name}_videoconvert_q")} ! '
-        f'videoconvert name={name}_videoconvert n-threads=2 qos=false ! '
+        f"videoconvert name={name}_videoconvert n-threads=2 qos=false ! "
         f'{QUEUE(name=f"{name}_q")} ! '
-        f'fpsdisplaysink name={name} video-sink={video_sink} sync={sync} text-overlay={show_fps} signal-fps-measurements=true '
+        f"fpsdisplaysink name={name} video-sink={video_sink} sync={sync} text-overlay={show_fps} signal-fps-measurements=true "
     )
 
     return display_pipeline
 
-def USER_CALLBACK_PIPELINE(name='identity_callback'):
+
+def USER_CALLBACK_PIPELINE(name="identity_callback"):
     """
     Creates a GStreamer pipeline string for the user callback element.
 
@@ -333,18 +389,19 @@ def USER_CALLBACK_PIPELINE(name='identity_callback'):
         str: A string representing the GStreamer pipeline for the user callback element.
     """
     # Construct the user callback pipeline string
-    user_callback_pipeline = (
-        f'{QUEUE(name=f"{name}_q")} ! '
-        f'identity name={name} '
-    )
+    user_callback_pipeline = f'{QUEUE(name=f"{name}_q")} ! ' f"identity name={name} "
 
     return user_callback_pipeline
+
+
 # -----------------------------------------------------------------------------------------------
 # GStreamerApp class
 # -----------------------------------------------------------------------------------------------
 class GStreamerApp:
     # this is base class should be added as base properly before publishing
-    def __init__(self, args, user_data: app_callback_class): # change user_data to something more intuitive
+    def __init__(
+        self, args, user_data: app_callback_class
+    ):  # change user_data to something more intuitive
         # Set the process title
         setproctitle.setproctitle("Hailo Python App")
 
@@ -355,9 +412,11 @@ class GStreamerApp:
         signal.signal(signal.SIGINT, self.shutdown)
 
         # Initialize variables
-        tappas_post_process_dir = os.environ.get('TAPPAS_POST_PROC_DIR', '')
-        if tappas_post_process_dir == '':
-            print("TAPPAS_POST_PROC_DIR environment variable is not set. Please set it to by sourcing setup_env.sh")
+        tappas_post_process_dir = os.environ.get("TAPPAS_POST_PROC_DIR", "")
+        if tappas_post_process_dir == "":
+            print(
+                "TAPPAS_POST_PROC_DIR environment variable is not set. Please set it to by sourcing setup_env.sh"
+            )
             exit(1)
         self.current_path = os.path.dirname(os.path.abspath(__file__))
         self.postprocess_dir = tappas_post_process_dir
@@ -379,7 +438,11 @@ class GStreamerApp:
         # Set user data parameters
         user_data.use_frame = self.options_menu.use_frame
 
-        self.sync = "false" if (self.options_menu.disable_sync or self.source_type != "file") else "true"
+        self.sync = (
+            "false"
+            if (self.options_menu.disable_sync or self.source_type != "file")
+            else "true"
+        )
         self.show_fps = "true" if self.options_menu.show_fps else "false"
 
         if self.options_menu.dump_dot:
@@ -404,7 +467,9 @@ class GStreamerApp:
         # Connect to hailo_display fps-measurements
         if self.show_fps:
             print("Showing FPS")
-            self.pipeline.get_by_name("hailo_display").connect("fps-measurements", self.on_fps_measurement)
+            self.pipeline.get_by_name("hailo_display").connect(
+                "fps-measurements", self.on_fps_measurement
+            )
 
         # Create a GLib Main Loop
         self.loop = GLib.MainLoop()
@@ -425,10 +490,9 @@ class GStreamerApp:
             print(f"QoS message received from {qos_element}")
         return True
 
-
     def on_eos(self):
         if self.source_type == "file":
-             # Seek to the start (position 0) in nanoseconds
+            # Seek to the start (position 0) in nanoseconds
             success = self.pipeline.seek_simple(Gst.Format.TIME, Gst.SeekFlags.FLUSH, 0)
             if success:
                 print("Video rewound successfully. Restarting playback...")
@@ -436,7 +500,6 @@ class GStreamerApp:
                 print("Error rewinding the video.")
         else:
             self.shutdown()
-
 
     def shutdown(self, signum=None, frame=None):
         print("Shutting down... Hit Ctrl-C again to force quit.")
@@ -482,14 +545,20 @@ class GStreamerApp:
         # Connect pad probe to the identity element
         identity = self.pipeline.get_by_name("identity_callback")
         if identity is None:
-            print("Warning: identity_callback element not found, add <identity name=identity_callback> in your pipeline where you want the callback to be called.")
+            print(
+                "Warning: identity_callback element not found, add <identity name=identity_callback> in your pipeline where you want the callback to be called."
+            )
         else:
             identity_pad = identity.get_static_pad("src")
-            identity_pad.add_probe(Gst.PadProbeType.BUFFER, self.app_callback, self.user_data)
+            identity_pad.add_probe(
+                Gst.PadProbeType.BUFFER, self.app_callback, self.user_data
+            )
 
         hailo_display = self.pipeline.get_by_name("hailo_display")
         if hailo_display is None:
-            print("Warning: hailo_display element not found, add <fpsdisplaysink name=hailo_display> to your pipeline to support fps display.")
+            print(
+                "Warning: hailo_display element not found, add <fpsdisplaysink name=hailo_display> to your pipeline to support fps display."
+            )
         else:
             xvimagesink = hailo_display.get_by_name("xvimagesink0")
             if xvimagesink is not None:
@@ -500,7 +569,9 @@ class GStreamerApp:
 
         # Start a subprocess to run the display_user_data_frame function
         if self.options_menu.use_frame:
-            display_process = multiprocessing.Process(target=display_user_data_frame, args=(self.user_data,))
+            display_process = multiprocessing.Process(
+                target=display_user_data_frame, args=(self.user_data,)
+            )
             display_process.start()
 
         # Set pipeline to PLAYING state
@@ -524,29 +595,45 @@ class GStreamerApp:
             display_process.terminate()
             display_process.join()
 
+
 # ---------------------------------------------------------
 # Functions used to get numpy arrays from GStreamer buffers
 # ---------------------------------------------------------
 
+
 def handle_rgb(map_info, width, height):
     # The copy() method is used to create a copy of the numpy array. This is necessary because the original numpy array is created from buffer data, and it does not own the data it represents. Instead, it's just a view of the buffer's data.
-    return np.ndarray(shape=(height, width, 3), dtype=np.uint8, buffer=map_info.data).copy()
+    return np.ndarray(
+        shape=(height, width, 3), dtype=np.uint8, buffer=map_info.data
+    ).copy()
+
 
 def handle_nv12(map_info, width, height):
     y_plane_size = width * height
     uv_plane_size = width * height // 2
-    y_plane = np.ndarray(shape=(height, width), dtype=np.uint8, buffer=map_info.data[:y_plane_size]).copy()
-    uv_plane = np.ndarray(shape=(height//2, width//2, 2), dtype=np.uint8, buffer=map_info.data[y_plane_size:]).copy()
+    y_plane = np.ndarray(
+        shape=(height, width), dtype=np.uint8, buffer=map_info.data[:y_plane_size]
+    ).copy()
+    uv_plane = np.ndarray(
+        shape=(height // 2, width // 2, 2),
+        dtype=np.uint8,
+        buffer=map_info.data[y_plane_size:],
+    ).copy()
     return y_plane, uv_plane
 
+
 def handle_yuyv(map_info, width, height):
-    return np.ndarray(shape=(height, width, 2), dtype=np.uint8, buffer=map_info.data).copy()
+    return np.ndarray(
+        shape=(height, width, 2), dtype=np.uint8, buffer=map_info.data
+    ).copy()
+
 
 FORMAT_HANDLERS = {
-    'RGB': handle_rgb,
-    'NV12': handle_nv12,
-    'YUYV': handle_yuyv,
+    "RGB": handle_rgb,
+    "NV12": handle_nv12,
+    "YUYV": handle_yuyv,
 }
+
 
 def get_numpy_from_buffer(buffer, format, width, height):
     """
@@ -575,9 +662,11 @@ def get_numpy_from_buffer(buffer, format, width, height):
     finally:
         buffer.unmap(map_info)
 
+
 # ---------------------------------------------------------
 # Useful functions for working with GStreamer
 # ---------------------------------------------------------
+
 
 def disable_qos(pipeline):
     """
@@ -600,7 +689,7 @@ def disable_qos(pipeline):
             break
 
         # Check if the element has the 'qos' property
-        if 'qos' in GObject.list_properties(element):
+        if "qos" in GObject.list_properties(element):
             # Set the 'qos' property to False
-            element.set_property('qos', False)
+            element.set_property("qos", False)
             print(f"Set qos to False for {element.get_name()}")
