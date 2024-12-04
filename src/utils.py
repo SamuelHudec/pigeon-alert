@@ -27,7 +27,7 @@ def create_today_folder(folder_path: str) -> str:
 
 def is_daylight() -> bool:
     city = LocationInfo("Prague", "Czech Republic", "Europe/Prague", 50.0755, 14.4378)
-    s = sun(city.observer, date=date.today())
     tz = pytz.timezone(city.timezone)
+    s = sun(city.observer, date=date.today(), tzinfo=tz)
     now = datetime.now(tz=tz)
     return s['sunrise'] <= now <= s['sunset']
