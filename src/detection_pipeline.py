@@ -1,21 +1,14 @@
+from typing import Any
+
 import gi
 
 gi.require_version("Gst", "1.0")
-import argparse
-import multiprocessing
 import os
-import time
-
-import cv2
-import hailo
-import numpy as np
 import setproctitle
-from gi.repository import GLib, Gst
 
 from hailo_rpi_common import (DISPLAY_PIPELINE, INFERENCE_PIPELINE,
-                              INFERENCE_PIPELINE_WRAPPER, QUEUE,
                               SOURCE_PIPELINE, USER_CALLBACK_PIPELINE,
-                              GStreamerApp, app_callback_class,
+                              GStreamerApp, AppCallbackClass,
                               detect_hailo_arch, dummy_callback,
                               get_default_parser)
 
@@ -26,7 +19,7 @@ from hailo_rpi_common import (DISPLAY_PIPELINE, INFERENCE_PIPELINE,
 
 # This class inherits from the hailo_rpi_common.GStreamerApp class
 class GStreamerDetectionApp(GStreamerApp):
-    def __init__(self, app_callback, user_data):
+    def __init__(self, app_callback: Any, user_data: AppCallbackClass) -> None:
         parser = get_default_parser()
         parser.add_argument(
             "--labels-json",
@@ -88,7 +81,7 @@ class GStreamerDetectionApp(GStreamerApp):
 
         self.create_pipeline()
 
-    def get_pipeline_string(self):
+    def get_pipeline_string(self) -> str:
         source_pipeline = SOURCE_PIPELINE(self.video_source)
         detection_pipeline = INFERENCE_PIPELINE(
             hef_path=self.hef_path,
@@ -113,7 +106,7 @@ class GStreamerDetectionApp(GStreamerApp):
 
 if __name__ == "__main__":
     # Create an instance of the user app callback class
-    user_data = app_callback_class()
+    user_data = AppCallbackClass()
     app_callback = dummy_callback
     app = GStreamerDetectionApp(app_callback, user_data)
     app.run()

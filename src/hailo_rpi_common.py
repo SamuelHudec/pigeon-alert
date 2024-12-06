@@ -1,4 +1,6 @@
 import sys
+from abc import ABC
+from typing import Optional
 
 import gi
 
@@ -8,7 +10,6 @@ import multiprocessing
 import os
 import signal
 import subprocess
-import time
 
 import cv2
 import numpy as np
@@ -33,26 +34,26 @@ except ImportError:
 # Additional variables and functions can be added to this class as needed
 
 
-class app_callback_class:
-    def __init__(self):
+class AppCallbackClass(ABC):
+    def __init__(self) -> None:
         self.frame_count = 0
         self.use_frame = False
         self.frame_queue = multiprocessing.Queue(
             maxsize=3
-        )  # add frames here, and than send as email/somethging
+        )  # add frames here, and than send as email/something
         self.running = True
 
-    def increment(self):
+    def increment(self) -> None:
         self.frame_count += 1
 
-    def get_count(self):
+    def get_count(self) -> int:
         return self.frame_count
 
-    def set_frame(self, frame):
+    def set_frame(self, frame: np.ndarray) -> None:
         if not self.frame_queue.full():
             self.frame_queue.put(frame)
 
-    def get_frame(self):
+    def get_frame(self) -> Optional[np.ndarray]:
         if not self.frame_queue.empty():
             return self.frame_queue.get()
         else:
@@ -120,7 +121,7 @@ def get_caps_from_pad(pad: Gst.Pad):
 
 
 # This function is used to display the user data frame
-def display_user_data_frame(user_data: app_callback_class):
+def display_user_data_frame(user_data: AppCallbackClass):
     while user_data.running:
         frame = user_data.get_frame()
         if frame is not None:
@@ -400,7 +401,7 @@ def USER_CALLBACK_PIPELINE(name="identity_callback"):
 class GStreamerApp:
     # this is base class should be added as base properly before publishing
     def __init__(
-        self, args, user_data: app_callback_class
+        self, args, user_data: AppCallbackClass
     ):  # change user_data to something more intuitive
         # Set the process title
         setproctitle.setproctitle("Hailo Python App")
