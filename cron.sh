@@ -1,4 +1,7 @@
 #!/bin/bash
+# debug
+echo "Script started at $(date)" >> /tmp/debug_log.log
+env > /tmp/cron_env.log
 
 # Use the first argument as the timeout, default to 3590 if not provided
 TIMEOUT=${1:-3590}
@@ -6,7 +9,7 @@ LOCKFILE="/job_run.lock"
 
 # Check if the lock file exists
 if [ -e "$LOCKFILE" ]; then
-    echo "Script is already running. Exiting."
+    echo "Script is already running." >> /tmp/debug_log.log
     exit 1
 fi
 
