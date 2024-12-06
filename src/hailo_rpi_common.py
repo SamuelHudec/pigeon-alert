@@ -504,14 +504,7 @@ class GStreamerApp:
     def shutdown(self, signum=None, frame=None):
         print("Shutting down... Hit Ctrl-C again to force quit.")
         signal.signal(signal.SIGINT, signal.SIG_DFL)
-        self.pipeline.set_state(Gst.State.PAUSED)
-        GLib.usleep(100000)  # 0.1 second delay
-
-        self.pipeline.set_state(Gst.State.READY)
-        GLib.usleep(100000)  # 0.1 second delay
-
-        self.pipeline.set_state(Gst.State.NULL)
-        GLib.idle_add(self.loop.quit)
+        self.stop_loop()
 
     def stop_loop(self):
         """
