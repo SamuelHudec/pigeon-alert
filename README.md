@@ -44,6 +44,13 @@ source setup_env.sh
 python src/detection.py -i rpi
 ```
 
+## Cron job (Optional)
+
+if you want to run job only at day-light set cron to (hourly)
+```shell
+0 * * * * cd /HailoProjects/pigeon-alert && cron.sh
+```
+default time out is 3590 seconds.
 
 ## Work log
 - In examples of `hailo-rpi5-examples` I found and script for detection using wrapped yolo what includes a label "bird" lets use it for start!
@@ -51,6 +58,7 @@ python src/detection.py -i rpi
 - if detected label (bird for now) save frame, camera rotation done as postprocess
 - add option to set the timer of the loop, handy for next scheduling
 - update tappas to 3.30.0
+- 
 
 ## Notes
 
