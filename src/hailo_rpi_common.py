@@ -414,7 +414,7 @@ class GStreamerApp(ABC):
         self.options_menu = args
 
         # Set up signal handler for SIGINT (Ctrl-C)
-        signal.signal(signal.SIGINT, self.shutdown())
+        signal.signal(signal.SIGINT, self.shutdown)
 
         # Initialize variables
         tappas_post_process_dir = os.environ.get("TAPPAS_POST_PROC_DIR", "")
