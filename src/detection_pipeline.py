@@ -1,8 +1,9 @@
 import os
 from typing import Any
+import setproctitle
 
 import gi
-import setproctitle
+gi.require_version("Gst", "1.0")
 
 from hailo_rpi_common import (DISPLAY_PIPELINE, INFERENCE_PIPELINE,
                               SOURCE_PIPELINE, USER_CALLBACK_PIPELINE,
@@ -10,7 +11,6 @@ from hailo_rpi_common import (DISPLAY_PIPELINE, INFERENCE_PIPELINE,
                               detect_hailo_arch, dummy_callback,
                               get_default_parser)
 
-gi.require_version("Gst", "1.0")
 # -----------------------------------------------------------------------------------------------
 # User Gstreamer Application
 # -----------------------------------------------------------------------------------------------

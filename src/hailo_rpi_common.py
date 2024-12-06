@@ -8,12 +8,12 @@ from abc import ABC, abstractmethod
 from typing import Any, Optional
 
 import cv2
-import gi
 import numpy as np
 import setproctitle
+import gi
+gi.require_version("Gst", "1.0")
 from gi.repository import GLib, GObject, Gst
 
-gi.require_version("Gst", "1.0")
 
 # -----------------------------------------------------------------------------------------------
 # User-defined class to be used in the callback function

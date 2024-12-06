@@ -1,8 +1,9 @@
 from datetime import datetime
 
 import cv2
-import gi
 import hailo
+import gi
+gi.require_version("Gst", "1.0")
 from gi.repository import Gst
 
 from config import CACHE_DIR
@@ -11,7 +12,6 @@ from hailo_rpi_common import (BaseAppCallbackClass, get_caps_from_pad,
                               get_numpy_from_buffer)
 from utils import create_today_folder, is_daylight
 
-gi.require_version("Gst", "1.0")
 
 
 # -----------------------------------------------------------------------------------------------
