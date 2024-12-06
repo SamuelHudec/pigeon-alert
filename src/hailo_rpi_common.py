@@ -1,6 +1,6 @@
 import sys
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Optional, Any
 
 import argparse
 import multiprocessing
@@ -594,16 +594,20 @@ class GStreamerApp(ABC):
 # ---------------------------------------------------------
 
 
-def handle_rgb(map_info, width, height):
-    # The copy() method is used to create a copy of the numpy array. This is necessary because the original numpy array is created from buffer data, and it does not own the data it represents. Instead, it's just a view of the buffer's data.
+def handle_rgb(map_info: Any, width: int, height:int) -> np.ndarray:
+    """
+    The copy() method is used to create a copy of the numpy array. This is necessary because the original numpy array
+    is created from buffer data, and it does not own the data it represents.
+    Instead, it's just a view of the buffer's data.
+    """
     return np.ndarray(
         shape=(height, width, 3), dtype=np.uint8, buffer=map_info.data
     ).copy()
 
 
-def handle_nv12(map_info, width, height):
+def handle_nv12(map_info: Any, width: int, height: int) -> tuple[np.ndarray, np.ndarray]:
     y_plane_size = width * height
-    uv_plane_size = width * height // 2
+    # uv_plane_size = width * height // 2
     y_plane = np.ndarray(
         shape=(height, width), dtype=np.uint8, buffer=map_info.data[:y_plane_size]
     ).copy()
@@ -615,7 +619,7 @@ def handle_nv12(map_info, width, height):
     return y_plane, uv_plane
 
 
-def handle_yuyv(map_info, width, height):
+def handle_yuyv(map_info: Any, width: int, height: int) -> np.ndarray:
     return np.ndarray(
         shape=(height, width, 2), dtype=np.uint8, buffer=map_info.data
     ).copy()
@@ -628,8 +632,7 @@ FORMAT_HANDLERS = {
 }
 
 
-def get_numpy_from_buffer(buffer: Gst.Buffer, format: str, width: int, height: int) -> np.ndarray | tuple[
-    np.ndarray, np.ndarray]:
+def get_numpy_from_buffer(buffer: Gst.Buffer, format: str, width: int, height: int) -> np.ndarray | tuple[np.ndarray, np.ndarray]:
     """
     Converts a GstBuffer to a numpy array based on provided format, width, and height.
 
@@ -662,7 +665,7 @@ def get_numpy_from_buffer(buffer: Gst.Buffer, format: str, width: int, height: i
 # ---------------------------------------------------------
 
 
-def disable_qos(pipeline):
+def disable_qos(pipeline: Gst.Pipeline) -> None:
     """
     Iterate through all elements in the given GStreamer pipeline and set the qos property to False
     where applicable.
