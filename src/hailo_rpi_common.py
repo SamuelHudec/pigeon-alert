@@ -1,28 +1,19 @@
-import sys
-from abc import ABC, abstractmethod
-from typing import Optional, Any
-
 import argparse
 import multiprocessing
 import os
 import signal
 import subprocess
-import gi
+import sys
+from abc import ABC, abstractmethod
+from typing import Any, Optional
+
 import cv2
+import gi
 import numpy as np
 import setproctitle
-
-gi.require_version("Gst", "1.0")
-
 from gi.repository import GLib, GObject, Gst
 
-# Try to import hailo python module
-try:
-    import hailo
-except ImportError:
-    sys.exit(
-        "Failed to import hailo python module. Make sure you are in hailo virtual environment."
-    )
+gi.require_version("Gst", "1.0")
 
 # -----------------------------------------------------------------------------------------------
 # User-defined class to be used in the callback function
@@ -105,7 +96,9 @@ def detect_hailo_arch() -> Optional[str]:
         return None
 
 
-def get_caps_from_pad(pad: Gst.Pad) -> tuple[Optional[str], Optional[int], Optional[int]]:
+def get_caps_from_pad(
+    pad: Gst.Pad,
+) -> tuple[Optional[str], Optional[int], Optional[int]]:
     caps = pad.get_current_caps()
     if caps:
         # We can now extract information from the caps
@@ -196,7 +189,13 @@ def get_source_type(input_source: str) -> str:
             return "file"
 
 
-def QUEUE(name: str, max_size_buffers: int = 3, max_size_bytes: int = 0, max_size_time: int = 0, leaky: str = "no") -> str:
+def QUEUE(
+    name: str,
+    max_size_buffers: int = 3,
+    max_size_bytes: int = 0,
+    max_size_time: int = 0,
+    leaky: str = "no",
+) -> str:
     """
     Creates a GStreamer queue element string with the specified parameters.
 
@@ -214,7 +213,9 @@ def QUEUE(name: str, max_size_buffers: int = 3, max_size_bytes: int = 0, max_siz
     return q_string
 
 
-def SOURCE_PIPELINE(video_source: str, video_format: str = "RGB", name: str = "source") -> str:
+def SOURCE_PIPELINE(
+    video_source: str, video_format: str = "RGB", name: str = "source"
+) -> str:
     """
     Creates a GStreamer pipeline string for the video source.
 
@@ -266,7 +267,7 @@ def INFERENCE_PIPELINE(
     config_json: Optional[str] = None,
     post_function_name: Optional[str] = None,
     additional_params: Optional[str] = "",
-    name:str = "inference",
+    name: str = "inference",
 ) -> str:
     """
     Creates a GStreamer pipeline string for inference and post-processing using a user-provided shared object file.
@@ -314,7 +315,9 @@ def INFERENCE_PIPELINE(
 
 
 def INFERENCE_PIPELINE_WRAPPER(
-    inner_pipeline: str, bypass_max_size_buffers: int = 20, name: str = "inference_wrapper"
+    inner_pipeline: str,
+    bypass_max_size_buffers: int = 20,
+    name: str = "inference_wrapper",
 ) -> str:
     """
     Creates a GStreamer pipeline string that wraps an inner pipeline with a hailocropper and hailoaggregator.
@@ -349,7 +352,10 @@ def INFERENCE_PIPELINE_WRAPPER(
 
 
 def DISPLAY_PIPELINE(
-    video_sink: str = "xvimagesink", sync: str = "true", show_fps: str = "false", name: str = "hailo_display"
+    video_sink: str = "xvimagesink",
+    sync: str = "true",
+    show_fps: str = "false",
+    name: str = "hailo_display",
 ) -> str:
     """
     Creates a GStreamer pipeline string for displaying the video.
@@ -377,7 +383,7 @@ def DISPLAY_PIPELINE(
     return display_pipeline
 
 
-def USER_CALLBACK_PIPELINE(name:str = "identity_callback") -> str:
+def USER_CALLBACK_PIPELINE(name: str = "identity_callback") -> str:
     """
     Creates a GStreamer pipeline string for the user callback element.
 
@@ -594,7 +600,7 @@ class GStreamerApp(ABC):
 # ---------------------------------------------------------
 
 
-def handle_rgb(map_info: Any, width: int, height:int) -> np.ndarray:
+def handle_rgb(map_info: Any, width: int, height: int) -> np.ndarray:
     """
     The copy() method is used to create a copy of the numpy array. This is necessary because the original numpy array
     is created from buffer data, and it does not own the data it represents.
@@ -605,7 +611,9 @@ def handle_rgb(map_info: Any, width: int, height:int) -> np.ndarray:
     ).copy()
 
 
-def handle_nv12(map_info: Any, width: int, height: int) -> tuple[np.ndarray, np.ndarray]:
+def handle_nv12(
+    map_info: Any, width: int, height: int
+) -> tuple[np.ndarray, np.ndarray]:
     y_plane_size = width * height
     # uv_plane_size = width * height // 2
     y_plane = np.ndarray(
@@ -632,7 +640,9 @@ FORMAT_HANDLERS = {
 }
 
 
-def get_numpy_from_buffer(buffer: Gst.Buffer, format: str, width: int, height: int) -> np.ndarray | tuple[np.ndarray, np.ndarray]:
+def get_numpy_from_buffer(
+    buffer: Gst.Buffer, format: str, width: int, height: int
+) -> np.ndarray | tuple[np.ndarray, np.ndarray]:
     """
     Converts a GstBuffer to a numpy array based on provided format, width, and height.
 
