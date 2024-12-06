@@ -453,7 +453,7 @@ class GStreamerApp(ABC):
         if self.options_menu.dump_dot:
             os.environ["GST_DEBUG_DUMP_DOT_DIR"] = self.current_path
 
-    def on_fps_measurement(self, fps: float, droprate: float, avgfps: float) -> bool:
+    def on_fps_measurement(self, sink, fps: float, droprate: float, avgfps: float) -> bool:
         print(f"FPS: {fps:.2f}, Droprate: {droprate:.2f}, Avg FPS: {avgfps:.2f}")
         return True
 
@@ -479,7 +479,7 @@ class GStreamerApp(ABC):
         # Create a GLib Main Loop
         self.loop = GLib.MainLoop()
 
-    def bus_call(self, message: Gst.MessageType) -> bool:
+    def bus_call(self, bus, message: Gst.MessageType, loop) -> bool:
         t = message.type
         if t == Gst.MessageType.EOS:
             print("End-of-stream")
