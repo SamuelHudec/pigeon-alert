@@ -1,19 +1,19 @@
 import sys
-from abc import ABC
+from abc import ABC, abstractmethod
 from typing import Optional
 
-import gi
-
-gi.require_version("Gst", "1.0")
 import argparse
 import multiprocessing
 import os
 import signal
 import subprocess
-
+import gi
 import cv2
 import numpy as np
 import setproctitle
+
+gi.require_version("Gst", "1.0")
+
 from gi.repository import GLib, GObject, Gst
 
 # Try to import hailo python module
@@ -34,7 +34,7 @@ except ImportError:
 # Additional variables and functions can be added to this class as needed
 
 
-class AppCallbackClass(ABC):
+class BaseAppCallbackClass(ABC):
     def __init__(self) -> None:
         self.frame_count = 0
         self.use_frame = False
@@ -60,7 +60,7 @@ class AppCallbackClass(ABC):
             return None
 
 
-def dummy_callback(pad, info, user_data):
+def dummy_callback(pad: Gst.Pad, info, user_data):
     """
     A minimal dummy callback function that returns immediately.
 
@@ -78,7 +78,7 @@ def dummy_callback(pad, info, user_data):
 # -----------------------------------------------------------------------------------------------
 # Common functions
 # -----------------------------------------------------------------------------------------------
-def detect_hailo_arch():
+def detect_hailo_arch() -> Optional[str]:
     try:
         # Run the hailortcli command to get device information
         result = subprocess.run(
@@ -105,7 +105,7 @@ def detect_hailo_arch():
         return None
 
 
-def get_caps_from_pad(pad: Gst.Pad):
+def get_caps_from_pad(pad: Gst.Pad) -> tuple[Optional[str], Optional[int], Optional[int]]:
     caps = pad.get_current_caps()
     if caps:
         # We can now extract information from the caps
@@ -121,7 +121,7 @@ def get_caps_from_pad(pad: Gst.Pad):
 
 
 # This function is used to display the user data frame
-def display_user_data_frame(user_data: AppCallbackClass):
+def display_user_data_frame(user_data: BaseAppCallbackClass) -> None:
     while user_data.running:
         frame = user_data.get_frame()
         if frame is not None:
@@ -130,7 +130,7 @@ def display_user_data_frame(user_data: AppCallbackClass):
     cv2.destroyAllWindows()
 
 
-def get_default_parser():
+def get_default_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Hailo App Help")
     current_path = os.path.dirname(os.path.abspath(__file__))
     default_video_source = os.path.join(current_path, "../resources/detection0.mp4")
@@ -184,7 +184,7 @@ def get_default_parser():
 # ---------------------------------------------------------
 
 
-def get_source_type(input_source):
+def get_source_type(input_source: str) -> str:
     # This function will return the source type based on the input source
     # return values can be "file", "mipi" or "usb"
     if input_source.startswith("/dev/video"):
@@ -196,7 +196,7 @@ def get_source_type(input_source):
             return "file"
 
 
-def QUEUE(name, max_size_buffers=3, max_size_bytes=0, max_size_time=0, leaky="no"):
+def QUEUE(name: str, max_size_buffers: int = 3, max_size_bytes: int = 0, max_size_time: int = 0, leaky: str = "no") -> str:
     """
     Creates a GStreamer queue element string with the specified parameters.
 
@@ -214,9 +214,7 @@ def QUEUE(name, max_size_buffers=3, max_size_bytes=0, max_size_time=0, leaky="no
     return q_string
 
 
-def SOURCE_PIPELINE(
-    video_source, video_format="RGB", video_width=640, video_height=640, name="source"
-):
+def SOURCE_PIPELINE(video_source: str, video_format: str = "RGB", name: str = "source") -> str:
     """
     Creates a GStreamer pipeline string for the video source.
 
@@ -262,14 +260,14 @@ def SOURCE_PIPELINE(
 
 
 def INFERENCE_PIPELINE(
-    hef_path,
-    post_process_so,
-    batch_size=1,
-    config_json=None,
-    post_function_name=None,
-    additional_params="",
-    name="inference",
-):
+    hef_path: str,
+    post_process_so: str,
+    batch_size: int = 1,
+    config_json: Optional[str] = None,
+    post_function_name: Optional[str] = None,
+    additional_params: Optional[str] = "",
+    name:str = "inference",
+) -> str:
     """
     Creates a GStreamer pipeline string for inference and post-processing using a user-provided shared object file.
     This pipeline includes videoscale and videoconvert elements to convert the video frame to the required format.
@@ -316,8 +314,8 @@ def INFERENCE_PIPELINE(
 
 
 def INFERENCE_PIPELINE_WRAPPER(
-    inner_pipeline, bypass_max_size_buffers=20, name="inference_wrapper"
-):
+    inner_pipeline: str, bypass_max_size_buffers: int = 20, name: str = "inference_wrapper"
+) -> str:
     """
     Creates a GStreamer pipeline string that wraps an inner pipeline with a hailocropper and hailoaggregator.
     This allows to keep the original video resolution and color-space (format) of the input frame.
@@ -351,8 +349,8 @@ def INFERENCE_PIPELINE_WRAPPER(
 
 
 def DISPLAY_PIPELINE(
-    video_sink="xvimagesink", sync="true", show_fps="false", name="hailo_display"
-):
+    video_sink: str = "xvimagesink", sync: str = "true", show_fps: str = "false", name: str = "hailo_display"
+) -> str:
     """
     Creates a GStreamer pipeline string for displaying the video.
     It includes the hailooverlay plugin to draw bounding boxes and labels on the video.
@@ -379,7 +377,7 @@ def DISPLAY_PIPELINE(
     return display_pipeline
 
 
-def USER_CALLBACK_PIPELINE(name="identity_callback"):
+def USER_CALLBACK_PIPELINE(name:str = "identity_callback") -> str:
     """
     Creates a GStreamer pipeline string for the user callback element.
 
@@ -398,11 +396,11 @@ def USER_CALLBACK_PIPELINE(name="identity_callback"):
 # -----------------------------------------------------------------------------------------------
 # GStreamerApp class
 # -----------------------------------------------------------------------------------------------
-class GStreamerApp:
+class GStreamerApp(ABC):
     # this is base class should be added as base properly before publishing
     def __init__(
-        self, args, user_data: AppCallbackClass
-    ):  # change user_data to something more intuitive
+        self, args: argparse.Namespace, user_data: BaseAppCallbackClass
+    ) -> None:  # change user_data to something more intuitive
         # Set the process title
         setproctitle.setproctitle("Hailo Python App")
 
@@ -410,7 +408,7 @@ class GStreamerApp:
         self.options_menu = args
 
         # Set up signal handler for SIGINT (Ctrl-C)
-        signal.signal(signal.SIGINT, self.shutdown)
+        signal.signal(signal.SIGINT, self.shutdown())
 
         # Initialize variables
         tappas_post_process_dir = os.environ.get("TAPPAS_POST_PROC_DIR", "")
@@ -449,11 +447,11 @@ class GStreamerApp:
         if self.options_menu.dump_dot:
             os.environ["GST_DEBUG_DUMP_DOT_DIR"] = self.current_path
 
-    def on_fps_measurement(self, sink, fps, droprate, avgfps):
+    def on_fps_measurement(self, fps: float, droprate: float, avgfps: float) -> bool:
         print(f"FPS: {fps:.2f}, Droprate: {droprate:.2f}, Avg FPS: {avgfps:.2f}")
         return True
 
-    def create_pipeline(self):
+    def create_pipeline(self) -> None:
         # Initialize GStreamer
         Gst.init(None)
 
@@ -475,7 +473,7 @@ class GStreamerApp:
         # Create a GLib Main Loop
         self.loop = GLib.MainLoop()
 
-    def bus_call(self, bus, message, loop):
+    def bus_call(self, message: Gst.MessageType) -> bool:
         t = message.type
         if t == Gst.MessageType.EOS:
             print("End-of-stream")
@@ -491,7 +489,7 @@ class GStreamerApp:
             print(f"QoS message received from {qos_element}")
         return True
 
-    def on_eos(self):
+    def on_eos(self) -> None:
         if self.source_type == "file":
             # Seek to the start (position 0) in nanoseconds
             success = self.pipeline.seek_simple(Gst.Format.TIME, Gst.SeekFlags.FLUSH, 0)
@@ -502,12 +500,12 @@ class GStreamerApp:
         else:
             self.shutdown()
 
-    def shutdown(self, signum=None, frame=None):
+    def shutdown(self) -> None:
         print("Shutting down... Hit Ctrl-C again to force quit.")
         signal.signal(signal.SIGINT, signal.SIG_DFL)
         self.stop_loop()
 
-    def stop_loop(self):
+    def stop_loop(self) -> None:
         """
         just copy paseted from shutdown method for purpose of outomatic quit
         :return:
@@ -521,16 +519,16 @@ class GStreamerApp:
         self.pipeline.set_state(Gst.State.NULL)
         GLib.idle_add(self.loop.quit)
 
-    def get_pipeline_string(self):
-        # This is a placeholder function that should be overridden by the child class
-        return ""
+    @abstractmethod
+    def get_pipeline_string(self) -> None:
+        pass
 
-    def dump_dot_file(self):
+    def dump_dot_file(self) -> bool:
         print("Dumping dot file...")
         Gst.debug_bin_to_dot_file(self.pipeline, Gst.DebugGraphDetails.ALL, "pipeline")
         return False
 
-    def run(self):
+    def run(self) -> None:
         # Add a watch for messages on the pipeline's bus
         bus = self.pipeline.get_bus()
         bus.add_signal_watch()
@@ -562,6 +560,7 @@ class GStreamerApp:
         disable_qos(self.pipeline)
 
         # Start a subprocess to run the display_user_data_frame function
+        display_process = None
         if self.options_menu.use_frame:
             display_process = multiprocessing.Process(
                 target=display_user_data_frame, args=(self.user_data,)
@@ -629,7 +628,8 @@ FORMAT_HANDLERS = {
 }
 
 
-def get_numpy_from_buffer(buffer, format, width, height):
+def get_numpy_from_buffer(buffer: Gst.Buffer, format: str, width: int, height: int) -> np.ndarray | tuple[
+    np.ndarray, np.ndarray]:
     """
     Converts a GstBuffer to a numpy array based on provided format, width, and height.
 

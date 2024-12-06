@@ -11,7 +11,7 @@ import hailo
 from gi.repository import GLib, Gst
 
 from detection_pipeline import GStreamerDetectionApp
-from hailo_rpi_common import (AppCallbackClass, get_caps_from_pad,
+from hailo_rpi_common import (BaseAppCallbackClass, get_caps_from_pad,
                               get_numpy_from_buffer)
 
 
@@ -19,7 +19,7 @@ from hailo_rpi_common import (AppCallbackClass, get_caps_from_pad,
 # User-defined class to be used in the callback function
 # -----------------------------------------------------------------------------------------------
 # Inheritance from the app_callback_class
-class UserCppCallbackClass(AppCallbackClass):
+class UserAppCallback(BaseAppCallbackClass):
     def __init__(self) -> None:
         super().__init__()
         # create clean cache folder
@@ -33,7 +33,7 @@ class UserCppCallbackClass(AppCallbackClass):
 
 # This is the callback function that will be called when data is available from the pipeline
 # create a class method and ABC class for better annotation
-def app_callback(pad, info, user_data):
+def app_callback(pad: Gst.Pad, info, user_data):
     # Get the GstBuffer from the probe info
     buffer = info.get_buffer()
     # Check if the buffer is valid
@@ -106,6 +106,6 @@ def app_callback(pad, info, user_data):
 if __name__ == "__main__":
     # Create an instance of the user app callback class
     if is_daylight():
-        user_data = UserCppCallbackClass()
+        user_data = UserAppCallback()
         app = GStreamerDetectionApp(app_callback, user_data)
         app.run()

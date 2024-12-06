@@ -8,7 +8,7 @@ import setproctitle
 
 from hailo_rpi_common import (DISPLAY_PIPELINE, INFERENCE_PIPELINE,
                               SOURCE_PIPELINE, USER_CALLBACK_PIPELINE,
-                              GStreamerApp, AppCallbackClass,
+                              GStreamerApp, BaseAppCallbackClass,
                               detect_hailo_arch, dummy_callback,
                               get_default_parser)
 
@@ -19,7 +19,7 @@ from hailo_rpi_common import (DISPLAY_PIPELINE, INFERENCE_PIPELINE,
 
 # This class inherits from the hailo_rpi_common.GStreamerApp class
 class GStreamerDetectionApp(GStreamerApp):
-    def __init__(self, app_callback: Any, user_data: AppCallbackClass) -> None:
+    def __init__(self, app_callback: Any, user_data: BaseAppCallbackClass) -> None:
         parser = get_default_parser()
         parser.add_argument(
             "--labels-json",
@@ -106,7 +106,7 @@ class GStreamerDetectionApp(GStreamerApp):
 
 if __name__ == "__main__":
     # Create an instance of the user app callback class
-    user_data = AppCallbackClass()
+    user_data = BaseAppCallbackClass()
     app_callback = dummy_callback
     app = GStreamerDetectionApp(app_callback, user_data)
     app.run()
