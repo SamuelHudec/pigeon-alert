@@ -8,12 +8,12 @@ from abc import ABC, abstractmethod
 from typing import Any, Optional
 
 import cv2
+import gi
 import numpy as np
 import setproctitle
-import gi
+
 gi.require_version("Gst", "1.0")
 from gi.repository import GLib, GObject, Gst
-
 
 # -----------------------------------------------------------------------------------------------
 # User-defined class to be used in the callback function
@@ -51,14 +51,16 @@ class BaseAppCallbackClass(ABC):
             return None
 
 
-def dummy_callback(pad: Gst.Pad, info, user_data):
+def dummy_callback(
+    pad: Gst.Pad, info: Gst.PadProbeInfo, user_data: object
+) -> Gst.PadProbeReturn:
     """
     A minimal dummy callback function that returns immediately.
 
     Args:
-        pad: The GStreamer pad
-        info: The probe info
-        user_data: User-defined data passed to the callback
+        pad: The GStreamer pad.
+        info: The probe info.
+        user_data: User-defined data passed to the callback.
 
     Returns:
         Gst.PadProbeReturn.OK
@@ -453,7 +455,10 @@ class GStreamerApp(ABC):
         if self.options_menu.dump_dot:
             os.environ["GST_DEBUG_DUMP_DOT_DIR"] = self.current_path
 
-    def on_fps_measurement(self, sink, fps: float, droprate: float, avgfps: float) -> bool:
+    def on_fps_measurement(
+        self, sink, fps: float, droprate: float, avgfps: float
+    ) -> bool:
+        # sink doesnt used but necessary as placeholder
         print(f"FPS: {fps:.2f}, Droprate: {droprate:.2f}, Avg FPS: {avgfps:.2f}")
         return True
 
@@ -480,6 +485,7 @@ class GStreamerApp(ABC):
         self.loop = GLib.MainLoop()
 
     def bus_call(self, bus, message: Gst.MessageType, loop) -> bool:
+        # bus and loop doesnt used but necessary as placeholder
         t = message.type
         if t == Gst.MessageType.EOS:
             print("End-of-stream")
@@ -526,7 +532,7 @@ class GStreamerApp(ABC):
         GLib.idle_add(self.loop.quit)
 
     @abstractmethod
-    def get_pipeline_string(self) -> None:
+    def get_pipeline_string(self) -> str:
         pass
 
     def dump_dot_file(self) -> bool:

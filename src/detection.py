@@ -1,8 +1,9 @@
 from datetime import datetime
 
 import cv2
-import hailo
 import gi
+import hailo
+
 gi.require_version("Gst", "1.0")
 from gi.repository import Gst
 
@@ -11,7 +12,6 @@ from detection_pipeline import GStreamerDetectionApp
 from hailo_rpi_common import (BaseAppCallbackClass, get_caps_from_pad,
                               get_numpy_from_buffer)
 from utils import create_today_folder, is_daylight
-
 
 
 # -----------------------------------------------------------------------------------------------
@@ -32,7 +32,9 @@ class UserAppCallback(BaseAppCallbackClass):
 
 # This is the callback function that will be called when data is available from the pipeline
 # create a class method and ABC class for better annotation
-def app_callback(pad: Gst.Pad, info, user_data: UserAppCallback) -> Gst.PadProbeReturn:
+def app_callback(
+    pad: Gst.Pad, info: Gst.PadProbeInfo, user_data: BaseAppCallbackClass
+) -> Gst.PadProbeReturn:
     # Get the GstBuffer from the probe info
     buffer = info.get_buffer()
     # Check if the buffer is valid

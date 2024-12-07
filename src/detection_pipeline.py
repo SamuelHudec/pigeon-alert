@@ -1,15 +1,16 @@
 import os
-from typing import Any
-import setproctitle
+from typing import Callable
 
 import gi
+import setproctitle
+
 gi.require_version("Gst", "1.0")
+from gi.repository import Gst
 
 from hailo_rpi_common import (DISPLAY_PIPELINE, INFERENCE_PIPELINE,
                               SOURCE_PIPELINE, USER_CALLBACK_PIPELINE,
                               BaseAppCallbackClass, GStreamerApp,
-                              detect_hailo_arch, dummy_callback,
-                              get_default_parser)
+                              detect_hailo_arch, get_default_parser)
 
 # -----------------------------------------------------------------------------------------------
 # User Gstreamer Application
@@ -18,7 +19,11 @@ from hailo_rpi_common import (DISPLAY_PIPELINE, INFERENCE_PIPELINE,
 
 # This class inherits from the hailo_rpi_common.GStreamerApp class
 class GStreamerDetectionApp(GStreamerApp):
-    def __init__(self, app_callback: Any, user_data: BaseAppCallbackClass) -> None:
+    def __init__(
+        self,
+        app_callback: Callable[[Gst.Pad, Gst.PadProbeInfo, BaseAppCallbackClass], Gst.PadProbeReturn],
+        user_data: BaseAppCallbackClass,
+    ) -> None:
         parser = get_default_parser()
         parser.add_argument(
             "--labels-json",
@@ -101,11 +106,3 @@ class GStreamerDetectionApp(GStreamerApp):
         )
         print(pipeline_string)
         return pipeline_string
-
-
-if __name__ == "__main__":
-    # Create an instance of the user app callback class
-    user_data = BaseAppCallbackClass()
-    app_callback = dummy_callback
-    app = GStreamerDetectionApp(app_callback, user_data)
-    app.run()
