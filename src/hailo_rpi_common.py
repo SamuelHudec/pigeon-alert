@@ -12,6 +12,8 @@ import gi
 import numpy as np
 import setproctitle
 
+from src.pipelines import get_source_type
+
 gi.require_version("Gst", "1.0")
 from gi.repository import GLib, GObject, Gst
 
@@ -170,6 +172,11 @@ def get_default_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--set-time", "-t", type=int, default=None, help="Timer in seconds."
+    )
+    parser.add_argument(
+        "--display-off",
+        action="store_true",
+        help="Turn off displaying.",
     )
     return parser
 
