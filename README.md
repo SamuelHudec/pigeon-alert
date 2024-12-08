@@ -72,5 +72,21 @@ default time out is 3590 seconds.
 - pigeon sitting on balcony detected as person... find better model
 - (maybe) connect to remote pycharm for faster development
 
+# How to monitor your Hailo utilization
+
+Start the Monitoring Tool:
+In one terminal window, initiate the monitoring process:
+```shell
+hailortcli monitor
+```
+
+Run Your Inference Script:
+In a separate terminal window, execute your Python inference script or any application utilizing the Hailo chip. 
+Ensure that the HAILO_MONITOR environment variable is set in this terminal as well:
+```shell
+export HAILO_MONITOR=1
+python <your_inference_script>.py
+```
+
 [pyenv]: https://github.com/pyenv/pyenv#installationbrew
 [how to install pyenv on MacOS]: https://jordanthomasg.medium.com/python-development-on-macos-with-pyenv-2509c694a808
