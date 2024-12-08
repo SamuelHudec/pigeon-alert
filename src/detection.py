@@ -43,7 +43,7 @@ def app_callback(
 
     # Using the user_data to count the number of frames
     user_data.increment()
-    string_to_print = f"Frame count: {user_data.get_count()}\n"
+    string_to_print = ""  # f"Frame count: {user_data.get_count()}\n"
 
     # Get the caps from the pad
     format, width, height = get_caps_from_pad(pad)
@@ -60,8 +60,10 @@ def app_callback(
         label = detection.get_label()
         # bbox = detection.get_bbox()
         confidence = detection.get_confidence()
-        if label == "bird":
-            string_to_print += f"Detection: {label} {confidence:.2f}\n"
+        if (
+            label == "bird" or label == "person"
+        ):  # sitting pigeons detected as person :D, let's catch them
+            string_to_print += f"Label: {label} {confidence:.2f}"
             detection_count += 1
             user_data.use_frame = True
             print(string_to_print)
@@ -80,13 +82,10 @@ def app_callback(
         current_datetime = datetime.now()
         formatted_datetime = current_datetime.strftime("%Y-%m-%d_%H:%M:%S")
 
-        # first rotate frame, my camera is upside-down
-        frame = cv2.rotate(frame, cv2.ROTATE_180)
-
         # Let's print the detection count to the frame
         cv2.putText(
             frame,
-            f"{formatted_datetime}",
+            f"{string_to_print}",
             (10, 30),
             cv2.FONT_HERSHEY_SIMPLEX,
             1,

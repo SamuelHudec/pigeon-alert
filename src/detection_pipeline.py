@@ -4,12 +4,13 @@ from typing import Callable
 import gi
 import setproctitle
 
+from pipelines import (DISPLAY_PIPELINE, INFERENCE_PIPELINE, SOURCE_PIPELINE,
+                       USER_CALLBACK_PIPELINE)
+
 gi.require_version("Gst", "1.0")
 from gi.repository import Gst
 
-from hailo_rpi_common import (DISPLAY_PIPELINE, INFERENCE_PIPELINE,
-                              SOURCE_PIPELINE, USER_CALLBACK_PIPELINE,
-                              BaseAppCallbackClass, GStreamerApp,
+from hailo_rpi_common import (BaseAppCallbackClass, GStreamerApp,
                               detect_hailo_arch, get_default_parser)
 
 # -----------------------------------------------------------------------------------------------
@@ -21,7 +22,9 @@ from hailo_rpi_common import (DISPLAY_PIPELINE, INFERENCE_PIPELINE,
 class GStreamerDetectionApp(GStreamerApp):
     def __init__(
         self,
-        app_callback: Callable[[Gst.Pad, Gst.PadProbeInfo, BaseAppCallbackClass], Gst.PadProbeReturn],
+        app_callback: Callable[
+            [Gst.Pad, Gst.PadProbeInfo, BaseAppCallbackClass], Gst.PadProbeReturn
+        ],
         user_data: BaseAppCallbackClass,
     ) -> None:
         parser = get_default_parser()
@@ -96,12 +99,16 @@ class GStreamerDetectionApp(GStreamerApp):
         )
         user_callback_pipeline = USER_CALLBACK_PIPELINE()
         display_pipeline = DISPLAY_PIPELINE(
-            video_sink=self.video_sink, sync=self.sync, show_fps=self.show_fps
-        )  # ak bude treba odpojiť display
+            video_sink=self.video_sink,
+            sync=self.sync,
+            show_fps=self.show_fps,
+            display_off=self.options_menu.display_off,
+        )
+
         pipeline_string = (
-            f"{source_pipeline} "
-            f"{detection_pipeline} ! "
-            f"{user_callback_pipeline} ! "
+            f"{source_pipeline}"
+            f"{detection_pipeline}"
+            f"{user_callback_pipeline}"
             f"{display_pipeline}"
         )
         print(pipeline_string)
