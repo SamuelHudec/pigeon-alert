@@ -343,14 +343,15 @@ class GStreamerApp(ABC):
             )
 
         hailo_display = self.pipeline.get_by_name("hailo_display")
-        if hailo_display is None:
+        if hailo_display is None:  # if none, then raise error display pipe is needed
             print(
                 "Warning: hailo_display element not found, add <fpsdisplaysink name=hailo_display> to your pipeline to support fps display."
             )
-        # else:
-        #     xvimagesink = hailo_display.get_by_name("xvimagesink0")
-        #     if xvimagesink is not None:
-        #         xvimagesink.set_property("qos", False)
+        else:
+            if not self.options_menu.display_off:
+                xvimagesink = hailo_display.get_by_name("xvimagesink0")
+                if xvimagesink is not None:
+                    xvimagesink.set_property("qos", False)
 
         # Disable QoS to prevent frame drops
         disable_qos(self.pipeline)

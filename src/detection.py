@@ -9,7 +9,8 @@ from gi.repository import Gst
 
 from config import CACHE_DIR
 from detection_pipeline import GStreamerDetectionApp
-from hailo_rpi_common import BaseAppCallbackClass, get_caps_from_pad, get_numpy_from_buffer
+from hailo_rpi_common import (BaseAppCallbackClass, get_caps_from_pad,
+                              get_numpy_from_buffer)
 from utils import create_today_folder, is_daylight
 
 
@@ -42,7 +43,7 @@ def app_callback(
 
     # Using the user_data to count the number of frames
     user_data.increment()
-    string_to_print = "" #f"Frame count: {user_data.get_count()}\n"
+    string_to_print = ""  # f"Frame count: {user_data.get_count()}\n"
 
     # Get the caps from the pad
     format, width, height = get_caps_from_pad(pad)
@@ -104,7 +105,7 @@ def app_callback(
 
 if __name__ == "__main__":
     # Create an instance of the user app callback class
-    #if is_daylight():
+    # if is_daylight():
     user_data = UserAppCallback()
     app = GStreamerDetectionApp(app_callback, user_data)
     app.run()

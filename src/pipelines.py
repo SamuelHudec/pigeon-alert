@@ -191,10 +191,12 @@ def DISPLAY_PIPELINE(
     sync: str = "true",
     show_fps: str = "false",
     name: str = "hailo_display",
+    display_off: bool = False,
 ) -> str:
     """
     Creates a GStreamer pipeline string for displaying the video.
     It includes the hailooverlay plugin to draw bounding boxes and labels on the video.
+    todo: why display pipe is needed? HailoNet Error: gst_pad_push failed with status = -1
 
     Args:
         video_sink (str, optional): The video sink element to use. Defaults to 'xvimagesink'.
@@ -206,14 +208,19 @@ def DISPLAY_PIPELINE(
         str: A string representing the GStreamer pipeline for displaying the video.
     """
     # Construct the display pipeline string
+
+    if display_off:
+        pipeline_end = f"fakesink name={name} sync={sync}"
+    else:
+        pipeline_end = f"fpsdisplaysink name={name} video-sink={video_sink} sync={sync} text-overlay={show_fps} signal-fps-measurements=true "
+
     display_pipeline = (
         f'! {QUEUE(name=f"{name}_hailooverlay_q")} ! '
         f"hailooverlay name={name}_hailooverlay ! "
         f'{QUEUE(name=f"{name}_videoconvert_q")} ! '
         f"videoconvert name={name}_videoconvert n-threads=2 qos=false ! "
         f'{QUEUE(name=f"{name}_q")} ! '
-        f"fakesink name={name} sync={sync}"
-        #f"fpsdisplaysink name={name} video-sink={video_sink} sync={sync} text-overlay={show_fps} signal-fps-measurements=true "
+        f"{pipeline_end}"
     )
 
     return display_pipeline

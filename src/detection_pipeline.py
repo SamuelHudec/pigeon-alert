@@ -4,7 +4,8 @@ from typing import Callable
 import gi
 import setproctitle
 
-from pipelines import DISPLAY_PIPELINE, INFERENCE_PIPELINE, SOURCE_PIPELINE, USER_CALLBACK_PIPELINE
+from pipelines import (DISPLAY_PIPELINE, INFERENCE_PIPELINE, SOURCE_PIPELINE,
+                       USER_CALLBACK_PIPELINE)
 
 gi.require_version("Gst", "1.0")
 from gi.repository import Gst
@@ -97,12 +98,12 @@ class GStreamerDetectionApp(GStreamerApp):
             additional_params=self.thresholds_str,
         )
         user_callback_pipeline = USER_CALLBACK_PIPELINE()
-        if not self.options_menu.display_off:
-            display_pipeline = DISPLAY_PIPELINE(
-                video_sink=self.video_sink, sync=self.sync, show_fps=self.show_fps
-            )
-        else:
-            display_pipeline = ""
+        display_pipeline = DISPLAY_PIPELINE(
+            video_sink=self.video_sink,
+            sync=self.sync,
+            show_fps=self.show_fps,
+            display_off=self.options_menu.display_off,
+        )
 
         pipeline_string = (
             f"{source_pipeline}"
