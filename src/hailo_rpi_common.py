@@ -255,7 +255,7 @@ class GStreamerApp(ABC):
             sys.exit(1)
 
         # Connect to hailo_display fps-measurements
-        if self.show_fps:
+        if self.options_menu.show_fps:
             print("Showing FPS")
             self.pipeline.get_by_name("hailo_display").connect(
                 "fps-measurements", self.on_fps_measurement

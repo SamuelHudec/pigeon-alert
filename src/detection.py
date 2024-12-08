@@ -42,7 +42,7 @@ def app_callback(
 
     # Using the user_data to count the number of frames
     user_data.increment()
-    string_to_print = f"Frame count: {user_data.get_count()}\n"
+    string_to_print = "" #f"Frame count: {user_data.get_count()}\n"
 
     # Get the caps from the pad
     format, width, height = get_caps_from_pad(pad)
@@ -62,7 +62,7 @@ def app_callback(
         if (
             label == "bird" or label == "person"
         ):  # sitting pigeons detected as person :D, let's catch them
-            string_to_print += f"Detection: {label} {confidence:.2f}\n"
+            string_to_print += f"Label: {label} {confidence:.2f}\n"
             detection_count += 1
             user_data.use_frame = True
             print(string_to_print)
