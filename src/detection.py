@@ -80,9 +80,6 @@ def app_callback(
         current_datetime = datetime.now()
         formatted_datetime = current_datetime.strftime("%Y-%m-%d_%H:%M:%S")
 
-        # first rotate frame, my camera is upside-down
-        frame = cv2.rotate(frame, cv2.ROTATE_180)
-
         # Let's print the detection count to the frame
         cv2.putText(
             frame,
