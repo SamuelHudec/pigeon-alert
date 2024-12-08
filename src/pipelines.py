@@ -212,7 +212,8 @@ def DISPLAY_PIPELINE(
         f'{QUEUE(name=f"{name}_videoconvert_q")} ! '
         f"videoconvert name={name}_videoconvert n-threads=2 qos=false ! "
         f'{QUEUE(name=f"{name}_q")} ! '
-        f"fpsdisplaysink name={name} video-sink={video_sink} sync={sync} text-overlay={show_fps} signal-fps-measurements=true "
+        f"fakesink name={name} sync={sync}"
+        #f"fpsdisplaysink name={name} video-sink={video_sink} sync={sync} text-overlay={show_fps} signal-fps-measurements=true "
     )
 
     return display_pipeline
