@@ -1,28 +1,25 @@
-import gi
-
-from config import CACHE_DIR
-from utils import create_today_folder, is_daylight
-
-gi.require_version("Gst", "1.0")
-import os
 from datetime import datetime
 
 import cv2
+import gi
 import hailo
-import numpy as np
-from gi.repository import GLib, Gst
 
+gi.require_version("Gst", "1.0")
+from gi.repository import Gst
+
+from config import CACHE_DIR
 from detection_pipeline import GStreamerDetectionApp
-from hailo_rpi_common import (app_callback_class, get_caps_from_pad,
+from hailo_rpi_common import (BaseAppCallbackClass, get_caps_from_pad,
                               get_numpy_from_buffer)
+from utils import create_today_folder, is_daylight
 
 
 # -----------------------------------------------------------------------------------------------
 # User-defined class to be used in the callback function
 # -----------------------------------------------------------------------------------------------
 # Inheritance from the app_callback_class
-class user_app_callback_class(app_callback_class):
-    def __init__(self):
+class UserAppCallback(BaseAppCallbackClass):
+    def __init__(self) -> None:
         super().__init__()
         # create clean cache folder
         self.current_cache_dir = create_today_folder(CACHE_DIR)
@@ -34,7 +31,10 @@ class user_app_callback_class(app_callback_class):
 
 
 # This is the callback function that will be called when data is available from the pipeline
-def app_callback(pad, info, user_data):
+# create a class method and ABC class for better annotation
+def app_callback(
+    pad: Gst.Pad, info: Gst.PadProbeInfo, user_data: BaseAppCallbackClass
+) -> Gst.PadProbeReturn:
     # Get the GstBuffer from the probe info
     buffer = info.get_buffer()
     # Check if the buffer is valid
@@ -58,7 +58,7 @@ def app_callback(pad, info, user_data):
     detection_count = 0
     for detection in detections:
         label = detection.get_label()
-        bbox = detection.get_bbox()
+        # bbox = detection.get_bbox()
         confidence = detection.get_confidence()
         if label == "bird":
             string_to_print += f"Detection: {label} {confidence:.2f}\n"
@@ -107,6 +107,6 @@ def app_callback(pad, info, user_data):
 if __name__ == "__main__":
     # Create an instance of the user app callback class
     if is_daylight():
-        user_data = user_app_callback_class()
+        user_data = UserAppCallback()
         app = GStreamerDetectionApp(app_callback, user_data)
         app.run()
