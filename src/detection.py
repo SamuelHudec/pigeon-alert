@@ -104,7 +104,7 @@ def app_callback(
 
 if __name__ == "__main__":
     # Create an instance of the user app callback class
-    if is_daylight():
-        user_data = UserAppCallback()
-        app = GStreamerDetectionApp(app_callback, user_data)
-        app.run()
+    #if is_daylight():
+    user_data = UserAppCallback()
+    app = GStreamerDetectionApp(app_callback, user_data)
+    app.run()
