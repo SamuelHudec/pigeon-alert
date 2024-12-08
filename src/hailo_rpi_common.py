@@ -456,7 +456,7 @@ class GStreamerApp(ABC):
             os.environ["GST_DEBUG_DUMP_DOT_DIR"] = self.current_path
 
     def on_fps_measurement(
-        self, sink, fps: float, droprate: float, avgfps: float
+        self, sink: Gst.Element, fps: float, droprate: float, avgfps: float
     ) -> bool:
         # sink doesnt used but necessary as placeholder
         print(f"FPS: {fps:.2f}, Droprate: {droprate:.2f}, Avg FPS: {avgfps:.2f}")
@@ -484,7 +484,7 @@ class GStreamerApp(ABC):
         # Create a GLib Main Loop
         self.loop = GLib.MainLoop()
 
-    def bus_call(self, bus, message: Gst.MessageType, loop) -> bool:
+    def bus_call(self, bus: Gst.Bus, message: Gst.MessageType, loop: GLib.MainLoop) -> bool:
         # bus and loop doesnt used but necessary as placeholder
         t = message.type
         if t == Gst.MessageType.EOS:
@@ -512,7 +512,7 @@ class GStreamerApp(ABC):
         else:
             self.shutdown()
 
-    def shutdown(self) -> None:
+    def shutdown(self, signum: Optional[int] = None, frame: Optional[object] = None) -> None:
         print("Shutting down... Hit Ctrl-C again to force quit.")
         signal.signal(signal.SIGINT, signal.SIG_DFL)
         self.stop_loop()
