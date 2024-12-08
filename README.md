@@ -49,7 +49,7 @@ python src/detection.py -i rpi
 note: not workin
 if you want to run job only at day-light set cron to (hourly)
 ```shell
-0 * * * * cd /HailoProjects/pigeon-alert && cron.sh
+0 * * * * cd /HailoProjects/pigeon-alert && ./cron.sh
 ```
 default time out is 3590 seconds.
 
