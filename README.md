@@ -46,6 +46,7 @@ python src/detection.py -i rpi
 
 ## Cron job (Optional)
 
+note: not workin
 if you want to run job only at day-light set cron to (hourly)
 ```shell
 0 * * * * cd /HailoProjects/pigeon-alert && cron.sh
@@ -56,9 +57,9 @@ default time out is 3590 seconds.
 - In examples of `hailo-rpi5-examples` I found and script for detection using wrapped yolo what includes a label "bird" lets use it for start!
 - Rob the repository for minimum code I will need to ran and example.
 - if detected label (bird for now) save frame, camera rotation done as postprocess
-- add option to set the timer of the loop, handy for next scheduling
+- add option to set the timer of the loop, handy for scheduling
 - update tappas to 3.30.0
-- 
+- add type annotation, it helped me gain intuition about how gstreamer works
 
 ## Notes
 
@@ -67,8 +68,8 @@ default time out is 3590 seconds.
 - streaming on [youtube](https://projects.raspberrypi.org/en/projects/infrared-bird-box/9)
 
 # TODO
-- disable display
-- polish scripts with respect of mypy of some other conventions
+- disable display, camera rotation 
+- pigeon sitting on balcony detected as person... find better model
 - (maybe) connect to remote pycharm for faster development
 
 [pyenv]: https://github.com/pyenv/pyenv#installationbrew
