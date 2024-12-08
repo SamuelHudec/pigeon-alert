@@ -18,4 +18,4 @@ trap "rm -f $LOCKFILE" EXIT
 touch $LOCKFILE
 
 source setup_env.sh
-python src/detection.py -i rpi -t $TIMEOUT
+python src/detection.py -i rpi -t $TIMEOUT --display-off
