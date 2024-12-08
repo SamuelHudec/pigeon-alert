@@ -84,7 +84,7 @@ def app_callback(
         # Let's print the detection count to the frame
         cv2.putText(
             frame,
-            f"{formatted_datetime}",
+            f"{string_to_print}",
             (10, 30),
             cv2.FONT_HERSHEY_SIMPLEX,
             1,

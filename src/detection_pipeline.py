@@ -97,9 +97,13 @@ class GStreamerDetectionApp(GStreamerApp):
             additional_params=self.thresholds_str,
         )
         user_callback_pipeline = USER_CALLBACK_PIPELINE()
-        display_pipeline = DISPLAY_PIPELINE(
-            video_sink=self.video_sink, sync=self.sync, show_fps=self.show_fps
-        )
+        if not self.options_menu.display_off:
+            display_pipeline = DISPLAY_PIPELINE(
+                video_sink=self.video_sink, sync=self.sync, show_fps=self.show_fps
+            )
+        else:
+            display_pipeline = ""
+
         pipeline_string = (
             f"{source_pipeline}"
             f"{detection_pipeline}"
