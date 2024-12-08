@@ -9,8 +9,7 @@ from gi.repository import Gst
 
 from config import CACHE_DIR
 from detection_pipeline import GStreamerDetectionApp
-from hailo_rpi_common import (BaseAppCallbackClass, get_caps_from_pad,
-                              get_numpy_from_buffer)
+from hailo_rpi_common import BaseAppCallbackClass, get_caps_from_pad, get_numpy_from_buffer
 from utils import create_today_folder, is_daylight
 
 

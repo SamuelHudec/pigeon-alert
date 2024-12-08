@@ -12,7 +12,7 @@ import gi
 import numpy as np
 import setproctitle
 
-from src.pipelines import get_source_type
+from pipelines import get_source_type
 
 gi.require_version("Gst", "1.0")
 from gi.repository import GLib, GObject, Gst
