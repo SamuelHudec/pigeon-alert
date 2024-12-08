@@ -88,7 +88,7 @@ def SOURCE_PIPELINE(
         f'{QUEUE(name=f"{name}_convert_q")} ! '
         f"videoconvert n-threads=3 name={name}_convert qos=false ! "
         f"videoflip video-direction=180 ! "  # My camera is up-side-down
-        f"video/x-raw, format={video_format}, pixel-aspect-ratio=1/1 ! "
+        f"video/x-raw, format={video_format}, pixel-aspect-ratio=1/1 "
         # f'video/x-raw, format={video_format}, width={video_width}, height={video_height} ! '
     )
 
