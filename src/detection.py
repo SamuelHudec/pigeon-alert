@@ -63,7 +63,7 @@ def app_callback(
         if (
             label == "bird" or label == "person"
         ):  # sitting pigeons detected as person :D, let's catch them
-            string_to_print += f"Label: {label} {confidence:.2f}\n"
+            string_to_print += f"Label: {label} {confidence:.2f}"
             detection_count += 1
             user_data.use_frame = True
             print(string_to_print)
@@ -105,7 +105,7 @@ def app_callback(
 
 if __name__ == "__main__":
     # Create an instance of the user app callback class
-    # if is_daylight():
-    user_data = UserAppCallback()
-    app = GStreamerDetectionApp(app_callback, user_data)
-    app.run()
+    if is_daylight():
+        user_data = UserAppCallback()
+        app = GStreamerDetectionApp(app_callback, user_data)
+        app.run()

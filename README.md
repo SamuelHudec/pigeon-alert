@@ -60,6 +60,7 @@ default time out is 3590 seconds.
 - add option to set the timer of the loop, handy for scheduling
 - update tappas to 3.30.0
 - add type annotation, it helped me gain intuition about how gstreamer works
+- option to disable display, camera rotation
 
 ## Notes
 
@@ -67,10 +68,10 @@ default time out is 3590 seconds.
 - [picamera](https://raspberrypifoundation.github.io/picamera-zero/)
 - streaming on [youtube](https://projects.raspberrypi.org/en/projects/infrared-bird-box/9)
 
-# TODO
-- disable display, camera rotation 
+# TODO 
 - pigeon sitting on balcony detected as person... find better model
 - (maybe) connect to remote pycharm for faster development
+- why display pipe is needed? HailoNet Error: gst_pad_push failed with status = -1
 
 # How to monitor your Hailo utilization
 

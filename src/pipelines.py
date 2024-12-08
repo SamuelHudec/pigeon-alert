@@ -196,7 +196,6 @@ def DISPLAY_PIPELINE(
     """
     Creates a GStreamer pipeline string for displaying the video.
     It includes the hailooverlay plugin to draw bounding boxes and labels on the video.
-    todo: why display pipe is needed? HailoNet Error: gst_pad_push failed with status = -1
 
     Args:
         video_sink (str, optional): The video sink element to use. Defaults to 'xvimagesink'.
