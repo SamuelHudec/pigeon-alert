@@ -101,9 +101,9 @@ class GStreamerDetectionApp(GStreamerApp):
             video_sink=self.video_sink, sync=self.sync, show_fps=self.show_fps
         )
         pipeline_string = (
-            f"{source_pipeline}"
-            f"{detection_pipeline}"
-            f"{user_callback_pipeline}"
+            f"{source_pipeline} "
+            f"{detection_pipeline} "
+            f"{user_callback_pipeline} "
             f"{display_pipeline}"
         )
         print(pipeline_string)
