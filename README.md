@@ -17,6 +17,7 @@ Hardware:
     ```
 2. Ran example from [hailo-rpi5-examples](https://github.com/hailo-ai/hailo-rpi5-examples)
 3. I had to fix source script [using issue](https://github.com/hailo-ai/hailo-rpi5-examples/issues/48).
+4. Presented code is fully based on hailo rpi5 detection example, where I am using only necessary code for detection.
 
 note: for a development purpose i tried to install at least gobjects on mac, 
 you have to install run `brew install pygobject3 gtk4`. Than run `make install-dev`
