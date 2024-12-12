@@ -3,9 +3,27 @@
 The motivation for this project is my obsession with pigeons polluting my balcony. First step is to create an alert
 when pigeons are occur. Second step nobody knows...
 
+## Set up info and steps I followed to test and ran camera inference
+
+Hardware:
+- Raspberry pi 5 8GB
+- M.2 HAT+ with Hailo-8L chip (13 TOPS)
+- Waveshare RPi camera (H)
+
+1. Next, I installed AI chip using [presented manual](https://www.raspberrypi.com/documentation/accessories/ai-kit.html#install) and [hardware setup](https://www.raspberrypi.com/documentation/computers/ai.html#hardware-setup). To understand workflow I tried some demos they provide.
+   Test if camera works (my camera is upside down, so I had to use rotation parameter):
+    ```shell
+    rpicam-hello --rotation 180 --timeout 0
+    ```
+2. Ran example from [hailo-rpi5-examples](https://github.com/hailo-ai/hailo-rpi5-examples)
+3. I had to fix source script [using issue](https://github.com/hailo-ai/hailo-rpi5-examples/issues/48).
+
+note: for a development purpose i tried to install at least gobjects on mac, 
+you have to install run `brew install pygobject3 gtk4`. Than run `make install-dev`
+
 ## Environment setup
 
-Easy just run script:
+Easy just run script (from rpi5 examples):
 ```shell
 ./install.sh
 ```
@@ -14,39 +32,17 @@ activate env and set all necessary variables:
 source setup_env.sh
 ```
 
-## Set up info and steps I followed to test and ran camera inference
-
-Hardware:
-- Raspberry pi 5 8GB
-- M.2 HAT+ with Hailo-8L chip (13 TOPS)
-- Waveshare RPi camera (H)
-
-Test if camera works:
-```shell
-rpicam-hello --rotation 180 --timeout 0
-```
-my camera is upside down, so I had to use rotation parameter.
-
-Next, I installed AI chip using [presented manual](https://www.raspberrypi.com/documentation/accessories/ai-kit.html#install)
-and [hardware setup](https://www.raspberrypi.com/documentation/computers/ai.html#hardware-setup). To understand workflow
-I tried some demos they provide.
-
-Ran example from [hailo-rpi5-examples](https://github.com/hailo-ai/hailo-rpi5-examples)
-I had to fix source script [using issue](https://github.com/hailo-ai/hailo-rpi5-examples/issues/48).
-
-for a development purpose i tried to install at least gobjects on mac, 
-you have to install run `brew install pygobject3 gtk4`. Than run `make install-dev`
-
 ## Usage
 
 ```shell
 source setup_env.sh
-python src/detection.py -i rpi
+python src/detection.py -i rpi -t 10
 ```
+I added `-t` flag for timer in seconds. 
 
 ## Cron job (Optional)
 
-note: not workin
+note: __not workin__
 if you want to run job only at day-light set cron to (hourly)
 ```shell
 0 * * * * cd /HailoProjects/pigeon-alert && ./cron.sh
@@ -68,12 +64,12 @@ default time out is 3590 seconds.
 - [picamera](https://raspberrypifoundation.github.io/picamera-zero/)
 - streaming on [youtube](https://projects.raspberrypi.org/en/projects/infrared-bird-box/9)
 
-# TODO 
+## TODO 
 - pigeon sitting on balcony detected as person... find better model
 - (maybe) connect to remote pycharm for faster development
 - why display pipe is needed? HailoNet Error: gst_pad_push failed with status = -1
 
-# How to monitor your Hailo utilization
+## How to monitor your Hailo utilization
 
 Start the Monitoring Tool:
 In one terminal window, initiate the monitoring process:
@@ -88,6 +84,3 @@ Ensure that the HAILO_MONITOR environment variable is set in this terminal as we
 export HAILO_MONITOR=1
 python <your_inference_script>.py
 ```
-
-[pyenv]: https://github.com/pyenv/pyenv#installationbrew
-[how to install pyenv on MacOS]: https://jordanthomasg.medium.com/python-development-on-macos-with-pyenv-2509c694a808
