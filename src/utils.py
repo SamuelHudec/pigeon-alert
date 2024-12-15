@@ -7,21 +7,24 @@ from astral import LocationInfo
 from astral.sun import sun
 
 
-def create_and_clean_folder(folder_path: str) -> None:
+def create_and_clean_folder(folder_path: str, remove: bool = True) -> None:
     if os.path.exists(folder_path):
-        shutil.rmtree(folder_path)
-        os.makedirs(folder_path, exist_ok=True)
-        print(f"Cleaned and recreated folder: {folder_path}")
+        if remove:
+            shutil.rmtree(folder_path)
+            os.makedirs(folder_path, exist_ok=True)
+            print(f"Cleaned and recreated folder: {folder_path}")
+        else:
+            print(f"Folder exist: {folder_path}")
     else:
         os.makedirs(folder_path, exist_ok=True)
         print(f"Folder '{folder_path}' created.")
 
 
-def create_today_folder(folder_path: str) -> str:
+def create_today_folder(folder_path: str, remove:bool = False) -> str:
     current_datetime = datetime.now()
     formatted_date = current_datetime.strftime("%Y-%m-%d")
     current_cache_dir = os.path.join(folder_path, formatted_date)
-    create_and_clean_folder(current_cache_dir)
+    create_and_clean_folder(current_cache_dir, remove=remove)
     return current_cache_dir
 
 
