@@ -7,7 +7,7 @@ import hailo
 gi.require_version("Gst", "1.0")
 from gi.repository import Gst
 
-from config import CACHE_DIR
+from config import CACHE_DIR, LABELS
 from detection_pipeline import GStreamerDetectionApp
 from hailo_rpi_common import (BaseAppCallbackClass, get_caps_from_pad,
                               get_numpy_from_buffer)
@@ -58,12 +58,10 @@ def app_callback(
     detection_count = 0
     for detection in detections:
         label = detection.get_label()
-        # bbox = detection.get_bbox()
+        bbox = detection.get_bbox()
         confidence = detection.get_confidence()
-        if (
-            label == "bird" or label == "person"
-        ):  # sitting pigeons detected as person :D, let's catch them
-            string_to_print += f"Label: {label} {confidence:.2f}"
+        if label in LABELS:  # sitting pigeons detected as person :D, let's catch them
+            string_to_print += f"Label: {label} {confidence:.2f}, Bbox:{bbox.width()}x{bbox.height()} "
             detection_count += 1
             user_data.use_frame = True
             print(string_to_print)
