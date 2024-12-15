@@ -61,7 +61,7 @@ def app_callback(
         bbox = detection.get_bbox()
         confidence = detection.get_confidence()
         if label in LABELS:  # sitting pigeons detected as person :D, let's catch them
-            string_to_print += f"Label: {label} {confidence:.2f}, Bbox:{bbox.width()}x{bbox.height()} "
+            string_to_print += f"{label} {confidence:.2f}, Bx:{round(bbox.width(), 3)}x{round(bbox.height(),3)} "
             detection_count += 1
             user_data.use_frame = True
             print(string_to_print)
