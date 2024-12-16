@@ -24,6 +24,13 @@ dotenv.load_dotenv(pathlib.Path(root) / Base.Config.env_file, override=profile !
 class Config(BaseSettings):
     CACHE_DIR: str = ".cache/birds"
     LABELS: list[str] = ["bird", "person"]
+    MAX_FRAME: int = 3
+    DETECTION_INTERVAL: int = 30
+    COOLDOWN: int = 300
+    THRESHOLD: int = 5
+    SENDER_EMAIL: str
+    SENDER_PASSWORD: str
+
 
 
 config: Config = Config()

@@ -6,11 +6,12 @@ import setproctitle
 
 from pipelines import (DISPLAY_PIPELINE, INFERENCE_PIPELINE, SOURCE_PIPELINE,
                        USER_CALLBACK_PIPELINE)
+from src.detection import UserAppCallback
 
 gi.require_version("Gst", "1.0")
 from gi.repository import Gst
 
-from hailo_rpi_common import (BaseAppCallbackClass, GStreamerApp,
+from hailo_rpi_common import (GStreamerApp,
                               detect_hailo_arch, get_default_parser)
 
 # -----------------------------------------------------------------------------------------------
@@ -23,9 +24,9 @@ class GStreamerDetectionApp(GStreamerApp):
     def __init__(
         self,
         app_callback: Callable[
-            [Gst.Pad, Gst.PadProbeInfo, BaseAppCallbackClass], Gst.PadProbeReturn
+            [Gst.Pad, Gst.PadProbeInfo, UserAppCallback], Gst.PadProbeReturn
         ],
-        user_data: BaseAppCallbackClass,
+        user_data: UserAppCallback,
     ) -> None:
         parser = get_default_parser()
         parser.add_argument(

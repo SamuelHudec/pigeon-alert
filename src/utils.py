@@ -2,6 +2,7 @@ import os
 import shutil
 from datetime import date, datetime
 
+import cv2
 import pytz
 from astral import LocationInfo
 from astral.sun import sun
@@ -34,3 +35,9 @@ def is_daylight() -> bool:
     s = sun(city.observer, date=date.today(), tzinfo=tz)
     now = datetime.now(tz=tz)
     return s["sunrise"] <= now <= s["sunset"]
+
+def encode_frame_to_jpeg(frame):
+    ret, buffer = cv2.imencode('.jpg', frame)
+    if not ret:
+        return None
+    return buffer.tobytes()
