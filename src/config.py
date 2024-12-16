@@ -1,2 +1,29 @@
-CACHE_DIR = ".cache/birds"
-LABELS = ["bird", "person"]
+import os
+import pathlib
+
+import dotenv
+from pydantic_settings import BaseSettings
+
+root = pathlib.Path(os.path.dirname(__file__)).parent.parent.parent
+
+profile_env_name = "PROFILE"
+profile = os.environ.get(profile_env_name, "").lower()
+test_profile_enabled = os.environ.get(profile_env_name, None) == "TEST"
+
+
+class Base(BaseSettings):
+    class Config:
+        env_file: str = f".env{'.'+ profile.lower() if profile else ''}"
+
+
+# read env vars from env file and override existing env vars from .env.${PROFILE} if PROFILE is set
+dotenv.load_dotenv(pathlib.Path(root) / ".env")
+dotenv.load_dotenv(pathlib.Path(root) / Base.Config.env_file, override=profile != "")
+
+
+class Config(BaseSettings):
+    CACHE_DIR: str = ".cache/birds"
+    LABELS: list[str] = ["bird", "person"]
+
+
+config: Config = Config()

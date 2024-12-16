@@ -3,3 +3,4 @@ setproctitle
 opencv-python
 astral
 pytz
+pydantic-settings
