@@ -175,7 +175,7 @@ def app_callback(
 
 if __name__ == "__main__":
     # add force
-    if is_daylight():
+    if config.FORCE or is_daylight():
         user_data = UserAppCallback()
         app = GStreamerDetectionApp(app_callback, user_data)
         app.run()

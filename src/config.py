@@ -30,6 +30,7 @@ class Config(BaseSettings):
     THRESHOLD: int = 5
     SENDER_EMAIL: str
     SENDER_PASSWORD: str
+    FORCE: bool = True
 
 
 
