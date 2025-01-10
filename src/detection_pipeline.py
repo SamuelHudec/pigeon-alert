@@ -6,7 +6,7 @@ import setproctitle
 
 from pipelines import (DISPLAY_PIPELINE, INFERENCE_PIPELINE, SOURCE_PIPELINE,
                        USER_CALLBACK_PIPELINE)
-from src.detection import UserAppCallback
+from detection import UserAppCallback
 
 gi.require_version("Gst", "1.0")
 from gi.repository import Gst  # noqa: E402
