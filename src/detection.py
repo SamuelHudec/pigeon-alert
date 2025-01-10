@@ -1,22 +1,23 @@
 import os
-import smtplib
+import time
 from collections import deque
 from datetime import datetime
-import time
-from email.message import EmailMessage
 
 import cv2
 import gi
 import hailo
+import yagmail
+
 from config import config
 
 gi.require_version("Gst", "1.0")
-from gi.repository import Gst
+from gi.repository import Gst  # noqa: E402
 
-from detection_pipeline import GStreamerDetectionApp
-from hailo_rpi_common import (BaseAppCallbackClass, get_caps_from_pad,
+from detection_pipeline import GStreamerDetectionApp  # noqa: E402
+from hailo_rpi_common import BaseAppCallbackClass  # noqa: E402
+from hailo_rpi_common import (get_caps_from_pad,  # noqa: E402
                               get_numpy_from_buffer)
-from utils import create_today_folder, is_daylight
+from utils import create_today_folder, is_daylight  # noqa: E402
 
 
 # -----------------------------------------------------------------------------------------------
@@ -45,42 +46,30 @@ class UserAppCallback(BaseAppCallbackClass):
         now = time.time()
         self.last_detection_times.append(now)
         # Clean up old detections
-        self.last_detection_times = [t for t in self.last_detection_times if t > now - self.detection_interval]
+        self.last_detection_times = [
+            t for t in self.last_detection_times if t > now - self.detection_interval
+        ]
 
     def should_send_email(self) -> bool:
         now = time.time()
         # Check if threshold met and cooldown passed
-        if len(self.last_detection_times) >= self.threshold and (now - self.last_email_sent) > self.cooldown:
+        if (
+            len(self.last_detection_times) >= self.threshold
+            and (now - self.last_email_sent) > self.cooldown  # noqa: W503
+        ):
             return True
         return False
 
     def send_email_with_attachments(self, subject, body) -> None:
-        # frames is a list of raw JPEG bytes
-        msg = EmailMessage()
-        msg['Subject'] = subject
-        msg['From'] = "from@example.com"
-        msg['To'] = "to@example.com"
-        msg.set_content(body)
-
+        yag = yagmail.SMTP(config.SENDER_EMAIL, config.SENDER_PASSWORD)
+        contents = [body]
         # Attach the frames
         for attachment_path in list(self.frame_history):
             if os.path.exists(attachment_path):
-                with open(attachment_path, 'rb') as f:
-                    file_data = f.read()
-                    file_name = os.path.basename(attachment_path)
-                msg.add_attachment(
-                    file_data,
-                    maintype='image',
-                    subtype='jpeg',
-                    filename=file_name
-                )
-
-        # lets see how consuming is sending emails directly
-        with smtplib.SMTP('smtp.example.com') as server:
-            server.login("user", "password")
-            server.send_message(msg)
-
+                contents.append(attachment_path)
+        yag.send("samuel.hudec@gmail.com", subject, contents)
         self.last_email_sent = time.time()
+
 
 # -----------------------------------------------------------------------------------------------
 # User-defined callback function
@@ -117,19 +106,16 @@ def app_callback(
         label = detection.get_label()
         bbox = detection.get_bbox()
         confidence = detection.get_confidence()
-        if label in config.LABELS:  # sitting pigeons detected as person :D, let's catch them
+        if (
+            label in config.LABELS
+        ):  # sitting pigeons detected as person :D, let's catch them
             string_to_print += f"{label} {confidence:.2f}, Bx:{round(bbox.width(), 3)}x{round(bbox.height(),3)} "
             detection_count += 1
             is_detected = True
             print(string_to_print)
 
     # If the user_data.use_frame is set to True, we can get the video frame from the buffer
-    if (
-        is_detected
-        and format is not None
-        and width is not None
-        and height is not None
-    ):
+    if is_detected and format is not None and width is not None and height is not None:
         # Get video frame
         frame = get_numpy_from_buffer(buffer, format, width, height)
 

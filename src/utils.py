@@ -21,7 +21,7 @@ def create_and_clean_folder(folder_path: str, remove: bool = True) -> None:
         print(f"Folder '{folder_path}' created.")
 
 
-def create_today_folder(folder_path: str, remove:bool = False) -> str:
+def create_today_folder(folder_path: str, remove: bool = False) -> str:
     current_datetime = datetime.now()
     formatted_date = current_datetime.strftime("%Y-%m-%d")
     current_cache_dir = os.path.join(folder_path, formatted_date)
@@ -36,8 +36,9 @@ def is_daylight() -> bool:
     now = datetime.now(tz=tz)
     return s["sunrise"] <= now <= s["sunset"]
 
+
 def encode_frame_to_jpeg(frame):
-    ret, buffer = cv2.imencode('.jpg', frame)
+    ret, buffer = cv2.imencode(".jpg", frame)
     if not ret:
         return None
     return buffer.tobytes()
