@@ -33,6 +33,11 @@ activate env and set all necessary variables:
 source setup_env.sh
 ```
 
+## Email authorisation
+
+For this project, I use gmail, what requires some authorisation if you want to send emails using username and password.
+This can by done using App passwords, [manual here](https://stackoverflow.com/questions/10147455/how-to-send-an-email-with-gmail-as-provider-using-python/27515833#27515833). (2024) 
+
 ## Usage
 
 ```shell
@@ -58,6 +63,8 @@ default time out is 3590 seconds.
 - update tappas to 3.30.0
 - add type annotation, it helped me gain intuition about how gstreamer works
 - option to disable display, camera rotation
+- to use credential I had to rearrange parameters in repo and set config using pydantic
+- mail warning with hyper-parameters set in config
 
 ## Notes
 
@@ -66,10 +73,9 @@ default time out is 3590 seconds.
 - streaming on [youtube](https://projects.raspberrypi.org/en/projects/infrared-bird-box/9)
 
 ## TODO 
-- pigeon sitting on balcony detected as person... find better model
+- pigeon sitting on balcony detected as person... find better model, fine tune hyper parameters, as Bx and limit for probability
 - (maybe) connect to remote pycharm for faster development
 - why display pipe is needed? HailoNet Error: gst_pad_push failed with status = -1
-- fine tune hyper parameters, as Bx and limit for probability
 
 ## How to monitor your Hailo utilization
 
