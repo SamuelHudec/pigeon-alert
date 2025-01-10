@@ -29,9 +29,9 @@ class UserAppCallback(BaseAppCallbackClass):
         super().__init__()
         # create clean cache folder
         self.current_cache_dir = create_today_folder(config.CACHE_DIR)
-        self.detection_interval = config.DETECTION_INTERVAL
-        self.cooldown = config.COOLDOWN
-        self.threshold = config.THRESHOLD
+        self.detection_interval = config.mail.DETECTION_INTERVAL
+        self.cooldown = config.mail.COOLDOWN
+        self.threshold = config.mail.THRESHOLD
 
         self.last_detection_times = []
         self.last_email_sent = 0
@@ -61,7 +61,7 @@ class UserAppCallback(BaseAppCallbackClass):
         return False
 
     def send_email_with_attachments(self, subject, body) -> None:
-        yag = yagmail.SMTP(config.SENDER_EMAIL, config.SENDER_PASSWORD)
+        yag = yagmail.SMTP(config.mail.SENDER_EMAIL, config.mail.SENDER_PASSWORD)
         contents = [body]
         # Attach the frames
         for attachment_path in list(self.frame_history):
