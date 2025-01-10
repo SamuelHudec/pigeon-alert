@@ -33,7 +33,7 @@ class BaseAppCallbackClass(ABC):
         self.frame_count = 0
         self.current_cache_dir = ""
         self.use_frame = False
-        self.frame_queue = multiprocessing.Queue(maxsize=config.MAX_FRAME)
+        self.frame_queue = multiprocessing.Queue(maxsize=config.mail.MAX_FRAME)
         self.running = True
 
     def increment(self) -> None:
