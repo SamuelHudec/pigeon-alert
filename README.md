@@ -69,6 +69,7 @@ default time out is 3590 seconds.
 - pigeon sitting on balcony detected as person... find better model
 - (maybe) connect to remote pycharm for faster development
 - why display pipe is needed? HailoNet Error: gst_pad_push failed with status = -1
+- fine tune hyper parameters, as Bx and limit for probability
 
 ## How to monitor your Hailo utilization
 
