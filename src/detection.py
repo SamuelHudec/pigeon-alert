@@ -36,8 +36,8 @@ class UserAppCallback(BaseAppCallbackClass):
         self.last_detection_times = []
         self.last_email_sent = 0
         self.last_frame_path = ""
-        # Keep track of last N frames (e.g., last 3 frames) instead of multiprocessing for now
-        self.frame_history = deque(maxlen=3)
+        # Keep track of last N frames (e.g., last 2 frames) instead of multiprocessing for now
+        self.frame_history = deque(maxlen=2)
 
     def store_frame(self, frame_path: str) -> None:
         self.frame_history.append(frame_path)
