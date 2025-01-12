@@ -12,10 +12,11 @@ import gi
 import numpy as np
 import setproctitle
 
+from config import config
 from pipelines import get_source_type
 
 gi.require_version("Gst", "1.0")
-from gi.repository import GLib, GObject, Gst
+from gi.repository import GLib, GObject, Gst  # noqa: E402
 
 # -----------------------------------------------------------------------------------------------
 # User-defined class to be used in the callback function
@@ -30,10 +31,9 @@ from gi.repository import GLib, GObject, Gst
 class BaseAppCallbackClass(ABC):
     def __init__(self) -> None:
         self.frame_count = 0
+        self.current_cache_dir = ""
         self.use_frame = False
-        self.frame_queue = multiprocessing.Queue(
-            maxsize=3
-        )  # add frames here, and than send as email/something
+        self.frame_queue = multiprocessing.Queue(maxsize=config.mail.MAX_FRAME)
         self.running = True
 
     def increment(self) -> None:

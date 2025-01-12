@@ -8,10 +8,10 @@ from pipelines import (DISPLAY_PIPELINE, INFERENCE_PIPELINE, SOURCE_PIPELINE,
                        USER_CALLBACK_PIPELINE)
 
 gi.require_version("Gst", "1.0")
-from gi.repository import Gst
+from gi.repository import Gst  # noqa: E402
 
-from hailo_rpi_common import (BaseAppCallbackClass, GStreamerApp,
-                              detect_hailo_arch, get_default_parser)
+from hailo_rpi_common import detect_hailo_arch, BaseAppCallbackClass  # noqa: E402
+from hailo_rpi_common import GStreamerApp, get_default_parser  # noqa: E402
 
 # -----------------------------------------------------------------------------------------------
 # User Gstreamer Application
