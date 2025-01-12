@@ -24,7 +24,7 @@ dotenv.load_dotenv(pathlib.Path(root) / Base.Config.env_file, override=profile !
 class Mail(BaseSettings):
     SENDER_EMAIL: str
     SENDER_PASSWORD: str
-    MAX_FRAME: int = 3
+    MAX_FRAME: int = 2
     DETECTION_INTERVAL: int = 30
     COOLDOWN: int = 300
     THRESHOLD: int = 5
