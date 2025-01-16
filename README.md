@@ -74,6 +74,8 @@ default time out is 3590 seconds.
 - streaming on [youtube](https://projects.raspberrypi.org/en/projects/infrared-bird-box/9)
 
 ## TODO 
+- add logging
+- fix cron
 - pigeon sitting on balcony detected as person... find better model
 - (maybe) connect to remote pycharm for faster development
 - why display pipe is needed? HailoNet Error: gst_pad_push failed with status = -1
