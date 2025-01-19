@@ -1,3 +1,4 @@
+import logging
 import os
 import shutil
 from datetime import date, datetime
@@ -7,6 +8,7 @@ import pytz
 from astral import LocationInfo
 from astral.sun import sun
 
+logger = logging.getLogger("Utils")
 
 def create_and_clean_folder(folder_path: str, remove: bool = True) -> None:
     if os.path.exists(folder_path):
@@ -26,6 +28,7 @@ def create_today_folder(folder_path: str, remove: bool = False) -> str:
     formatted_date = current_datetime.strftime("%Y-%m-%d")
     current_cache_dir = os.path.join(folder_path, formatted_date)
     create_and_clean_folder(current_cache_dir, remove=remove)
+    logger.debug(f"Folder directory: {current_cache_dir}")
     return current_cache_dir
 
 
@@ -34,6 +37,7 @@ def is_daylight() -> bool:
     tz = pytz.timezone(city.timezone)
     s = sun(city.observer, date=date.today(), tzinfo=tz)
     now = datetime.now(tz=tz)
+    logger.debug(f"Location: {city}, timezone: {tz}, date: {now}")
     return s["sunrise"] <= now <= s["sunset"]
 
 

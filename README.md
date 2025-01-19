@@ -66,6 +66,7 @@ default time out is 3590 seconds.
 - to use credential I had to rearrange parameters in repo and set config using pydantic
 - mail warning with hyper-parameters set in config
 - add bounding box area as new parameter for detecting a bird sitting on balcony or flying close to it
+- add logging
 
 ## Notes
 
@@ -74,7 +75,6 @@ default time out is 3590 seconds.
 - streaming on [youtube](https://projects.raspberrypi.org/en/projects/infrared-bird-box/9)
 
 ## TODO 
-- add logging
 - fix cron
 - pigeon sitting on balcony detected as person... find better model
 - (maybe) connect to remote pycharm for faster development

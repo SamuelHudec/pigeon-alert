@@ -1,3 +1,4 @@
+import logging
 import os
 import time
 from collections import deque
@@ -19,6 +20,7 @@ from hailo_rpi_common import (get_caps_from_pad,  # noqa: E402
                               get_numpy_from_buffer)
 from utils import create_today_folder, is_daylight  # noqa: E402
 
+logger = logging.getLogger("Detection")
 
 # -----------------------------------------------------------------------------------------------
 # User-defined class to be used in the callback function
@@ -41,6 +43,7 @@ class UserAppCallback(BaseAppCallbackClass):
 
     def store_frame(self, frame_path: str) -> None:
         self.frame_history.append(frame_path)
+        logger.debug(f"Frame saved {frame_path}")
 
     def record_detection(self) -> None:
         now = time.time()
@@ -68,6 +71,7 @@ class UserAppCallback(BaseAppCallbackClass):
             if os.path.exists(attachment_path):
                 contents.append(attachment_path)
         yag.send("samuel.hudec@gmail.com", subject, contents)
+        logger.debug(f"Sent email with {contents}")
         self.last_email_sent = time.time()
 
 
@@ -110,7 +114,7 @@ def app_callback(
             string_to_print += f"{label} {confidence:.2f}, Bx:{round(bbox.width(), 3)}x{round(bbox.height(),3)} "
             detection_count += 1
             is_detected = True
-            print(string_to_print)
+            logger.info(string_to_print)
 
     # If the user_data.use_frame is set to True, we can get the video frame from the buffer
     if is_detected and format is not None and width is not None and height is not None:
@@ -158,8 +162,13 @@ def app_callback(
 
 
 if __name__ == "__main__":
-    # add force
+    user_data = UserAppCallback()
+    logging.basicConfig(
+        level=logging.DEBUG,
+        filename=f"{user_data.current_cache_dir}/log.txt",
+        format="%(asctime)s | %(name)s : %(message)s",
+        datefmt="%Y-%m-%d | %H:%M:%S",)
+    logger.info(f"Start script... force run: {config.FORCE}")
     if config.FORCE or is_daylight():
-        user_data = UserAppCallback()
         app = GStreamerDetectionApp(app_callback, user_data)
         app.run()
