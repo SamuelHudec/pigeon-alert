@@ -1,3 +1,4 @@
+import logging
 import os
 from typing import Callable
 
@@ -12,6 +13,8 @@ from gi.repository import Gst  # noqa: E402
 
 from hailo_rpi_common import detect_hailo_arch, BaseAppCallbackClass  # noqa: E402
 from hailo_rpi_common import GStreamerApp, get_default_parser  # noqa: E402
+
+logger = logging.getLogger("GStreamer detection pipeline")
 
 # -----------------------------------------------------------------------------------------------
 # User Gstreamer Application
@@ -34,6 +37,7 @@ class GStreamerDetectionApp(GStreamerApp):
             help="Path to costume labels JSON file",
         )
         args = parser.parse_args()
+        logger.info(f"Parameters: {vars(args)}")
         # Call the parent class constructor
         super().__init__(args, user_data)
         # Additional initialization code can be added here

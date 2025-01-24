@@ -1,4 +1,5 @@
 import argparse
+import logging
 import multiprocessing
 import os
 import signal
@@ -17,6 +18,8 @@ from pipelines import get_source_type
 
 gi.require_version("Gst", "1.0")
 from gi.repository import GLib, GObject, Gst  # noqa: E402
+
+logger = logging.getLogger("hailo rpi-common")
 
 # -----------------------------------------------------------------------------------------------
 # User-defined class to be used in the callback function
