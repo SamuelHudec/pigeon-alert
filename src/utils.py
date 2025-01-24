@@ -10,6 +10,7 @@ from astral.sun import sun
 
 logger = logging.getLogger("Utils")
 
+
 def create_and_clean_folder(folder_path: str, remove: bool = True) -> None:
     if os.path.exists(folder_path):
         if remove:

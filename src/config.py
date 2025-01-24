@@ -29,9 +29,11 @@ class Mail(BaseSettings):
     COOLDOWN: int = 300
     THRESHOLD: int = 5
 
+
 class LabelParameters(BaseSettings):
     LABELS: list[str] = ["bird"]
-    BBOX_AREA: float = 0.0025 # 0.05*0.05 = 0.0025
+    BBOX_AREA: float = 0.0025  # 0.05*0.05 = 0.0025
+
 
 class Config(BaseSettings):
     mail: Mail = Mail()

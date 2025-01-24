@@ -5,14 +5,15 @@ from typing import Callable
 import gi
 import setproctitle
 
-from pipelines import (DISPLAY_PIPELINE, INFERENCE_PIPELINE, SOURCE_PIPELINE,
-                       USER_CALLBACK_PIPELINE, INFERENCE_PIPELINE_WRAPPER, TRACKER_PIPELINE)
+from pipelines import (DISPLAY_PIPELINE, INFERENCE_PIPELINE,
+                       INFERENCE_PIPELINE_WRAPPER, SOURCE_PIPELINE,
+                       TRACKER_PIPELINE, USER_CALLBACK_PIPELINE)
 
 gi.require_version("Gst", "1.0")
 from gi.repository import Gst  # noqa: E402
 
-from hailo_rpi_common import detect_hailo_arch, BaseAppCallbackClass  # noqa: E402
-from hailo_rpi_common import GStreamerApp, get_default_parser  # noqa: E402
+from hailo_rpi_common import (BaseAppCallbackClass, GStreamerApp,  # noqa: E402
+                              detect_hailo_arch, get_default_parser)
 
 logger = logging.getLogger("GStreamer detection pipeline")
 
@@ -91,7 +92,9 @@ class GStreamerDetectionApp(GStreamerApp):
         self.create_pipeline()
 
     def get_pipeline_string(self) -> str:
-        source_pipeline = SOURCE_PIPELINE(self.video_source, self.video_width, self.video_height)
+        source_pipeline = SOURCE_PIPELINE(
+            self.video_source, self.video_width, self.video_height
+        )
         detection_pipeline = INFERENCE_PIPELINE(
             hef_path=self.hef_path,
             post_process_so=self.post_process_so,
@@ -111,11 +114,11 @@ class GStreamerDetectionApp(GStreamerApp):
         )
 
         pipeline_string = (
-            f'{source_pipeline} !'
-            f'{detection_pipeline_wrapper} !'
-            f'{tracker_pipeline} !'
-            f'{user_callback_pipeline} !'
-            f'{display_pipeline}'
+            f"{source_pipeline} !"
+            f"{detection_pipeline_wrapper} !"
+            f"{tracker_pipeline} !"
+            f"{user_callback_pipeline} !"
+            f"{display_pipeline}"
         )
         print(pipeline_string)
         return pipeline_string

@@ -23,7 +23,7 @@ from gi.repository import GLib, GObject, Gst  # noqa: E402
 try:
     from picamera2 import Picamera2
 except ImportError:
-    pass # Available only on Pi OS
+    pass  # Available only on Pi OS
 
 logger = logging.getLogger("hailo rpi-common")
 
@@ -219,10 +219,10 @@ class GStreamerApp(ABC):
         self.video_source = self.options_menu.input
         self.source_type = get_source_type(self.video_source)
         self.user_data = user_data
-        self.video_sink = "autovideosink" # "xvimagesink"
+        self.video_sink = "autovideosink"  # "xvimagesink"
         self.pipeline = None
         self.loop = None
-        self.threads = [] # for what is this?
+        self.threads = []  # for what is this?
         self.error_occurred = False
         self.pipeline_latency = 300  # milliseconds
 
@@ -372,7 +372,15 @@ class GStreamerApp(ABC):
             display_process.start()
 
         if self.source_type == "rpi":
-            picam_thread = threading.Thread(target=picamera_thread, args=(self.pipeline, self.video_width, self.video_height, self.video_format))
+            picam_thread = threading.Thread(
+                target=picamera_thread,
+                args=(
+                    self.pipeline,
+                    self.video_width,
+                    self.video_height,
+                    self.video_format,
+                ),
+            )
             self.threads.append(picam_thread)
             picam_thread.start()
 
@@ -380,7 +388,9 @@ class GStreamerApp(ABC):
         self.pipeline.set_state(Gst.State.PAUSED)
 
         # Set pipeline latency
-        new_latency = self.pipeline_latency * Gst.MSECOND  # Convert milliseconds to nanoseconds
+        new_latency = (
+            self.pipeline_latency * Gst.MSECOND
+        )  # Convert milliseconds to nanoseconds
         self.pipeline.set_latency(new_latency)
 
         # Set pipeline to PLAYING state
@@ -417,8 +427,13 @@ class GStreamerApp(ABC):
                 sys.exit(0)
 
 
-
-def picamera_thread(pipeline: Gst.Pipeline, video_width: int, video_height: int, video_format: str, picamera_config: Any = None) -> None:
+def picamera_thread(
+    pipeline: Gst.Pipeline,
+    video_width: int,
+    video_height: int,
+    video_format: str,
+    picamera_config: Any = None,
+) -> None:
     appsrc = pipeline.get_by_name("app_source")
     appsrc.set_property("is-live", True)
     appsrc.set_property("format", Gst.Format.TIME)
@@ -427,31 +442,35 @@ def picamera_thread(pipeline: Gst.Pipeline, video_width: int, video_height: int,
     with Picamera2() as picam2:
         if picamera_config is None:
             # Default configuration
-            main = {'size': (1280, 720), 'format': 'RGB888'}
-            lores = {'size': (video_width, video_height), 'format': 'RGB888'}
-            controls = {'FrameRate': 30}
-            config = picam2.create_preview_configuration(main=main, lores=lores, controls=controls)
+            main = {"size": (1280, 720), "format": "RGB888"}
+            lores = {"size": (video_width, video_height), "format": "RGB888"}
+            controls = {"FrameRate": 30}
+            config = picam2.create_preview_configuration(
+                main=main, lores=lores, controls=controls
+            )
         else:
             config = picamera_config
         # Configure the camera with the created configuration
         picam2.configure(config)
         # Update GStreamer caps based on 'lores' stream
-        lores_stream = config['lores']
-        format_str = 'RGB' if lores_stream['format'] == 'RGB888' else video_format
-        width, height = lores_stream['size']
-        print(f"Picamera2 configuration: width={width}, height={height}, format={format_str}")
+        lores_stream = config["lores"]
+        format_str = "RGB" if lores_stream["format"] == "RGB888" else video_format
+        width, height = lores_stream["size"]
+        print(
+            f"Picamera2 configuration: width={width}, height={height}, format={format_str}"
+        )
         appsrc.set_property(
             "caps",
             Gst.Caps.from_string(
                 f"video/x-raw, format={format_str}, width={width}, height={height}, "
                 f"framerate=30/1, pixel-aspect-ratio=1/1"
-            )
+            ),
         )
         picam2.start()
         frame_count = 0
         print("picamera_process started")
         while True:
-            frame_data = picam2.capture_array('lores')
+            frame_data = picam2.capture_array("lores")
             # frame_data = np.random.randint(0, 255, (height, width, 3), dtype=np.uint8)
             if frame_data is None:
                 print("Failed to capture frame.")
@@ -466,7 +485,7 @@ def picamera_thread(pipeline: Gst.Pipeline, video_width: int, video_height: int,
             buffer.pts = frame_count * buffer_duration
             buffer.duration = buffer_duration
             # Push the buffer to appsrc
-            ret = appsrc.emit('push-buffer', buffer)
+            ret = appsrc.emit("push-buffer", buffer)
             if ret != Gst.FlowReturn.OK:
                 print("Failed to push buffer:", ret)
                 break
