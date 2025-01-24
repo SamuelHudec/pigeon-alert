@@ -5,6 +5,7 @@ import os
 import signal
 import subprocess
 import sys
+import threading
 from abc import ABC, abstractmethod
 from typing import Any, Optional
 
@@ -18,6 +19,11 @@ from pipelines import get_source_type
 
 gi.require_version("Gst", "1.0")
 from gi.repository import GLib, GObject, Gst  # noqa: E402
+
+try:
+    from picamera2 import Picamera2
+except ImportError:
+    pass # Available only on Pi OS
 
 logger = logging.getLogger("hailo rpi-common")
 
@@ -213,15 +219,18 @@ class GStreamerApp(ABC):
         self.video_source = self.options_menu.input
         self.source_type = get_source_type(self.video_source)
         self.user_data = user_data
-        self.video_sink = "xvimagesink"
+        self.video_sink = "autovideosink" # "xvimagesink"
         self.pipeline = None
         self.loop = None
+        self.threads = [] # for what is this?
+        self.error_occurred = False
+        self.pipeline_latency = 300  # milliseconds
 
         # Set Hailo parameters; these parameters should be set based on the model used
         self.batch_size = 1
-        self.network_width = 640
-        self.network_height = 640
-        self.network_format = "RGB"
+        self.video_width = 1280
+        self.video_height = 720
+        self.video_format = "RGB"
         self.hef_path = None
         self.app_callback = None
 
@@ -253,8 +262,7 @@ class GStreamerApp(ABC):
         try:
             self.pipeline = Gst.parse_launch(pipeline_string)
         except Exception as e:
-            print(e)
-            print(pipeline_string)
+            print(f"Error creating pipeline: {e}", file=sys.stderr)
             sys.exit(1)
 
         # Connect to hailo_display fps-measurements
@@ -277,7 +285,8 @@ class GStreamerApp(ABC):
             self.on_eos()
         elif t == Gst.MessageType.ERROR:
             err, debug = message.parse_error()
-            print(f"Error: {err}, {debug}")
+            print(f"Error: {err}, {debug}", file=sys.stderr)
+            self.error_occurred = True
             self.shutdown()
         # QOS
         elif t == Gst.MessageType.QOS:
@@ -293,7 +302,7 @@ class GStreamerApp(ABC):
             if success:
                 print("Video rewound successfully. Restarting playback...")
             else:
-                print("Error rewinding the video.")
+                print("Error rewinding the video.", file=sys.stderr)
         else:
             self.shutdown()
 
@@ -350,11 +359,6 @@ class GStreamerApp(ABC):
             print(
                 "Warning: hailo_display element not found, add <fpsdisplaysink name=hailo_display> to your pipeline to support fps display."
             )
-        else:
-            if not self.options_menu.display_off:
-                xvimagesink = hailo_display.get_by_name("xvimagesink0")
-                if xvimagesink is not None:
-                    xvimagesink.set_property("qos", False)
 
         # Disable QoS to prevent frame drops
         disable_qos(self.pipeline)
@@ -366,6 +370,18 @@ class GStreamerApp(ABC):
                 target=display_user_data_frame, args=(self.user_data,)
             )
             display_process.start()
+
+        if self.source_type == "rpi":
+            picam_thread = threading.Thread(target=picamera_thread, args=(self.pipeline, self.video_width, self.video_height, self.video_format))
+            self.threads.append(picam_thread)
+            picam_thread.start()
+
+        # Set the pipeline to PAUSED to ensure elements are initialized
+        self.pipeline.set_state(Gst.State.PAUSED)
+
+        # Set pipeline latency
+        new_latency = self.pipeline_latency * Gst.MSECOND  # Convert milliseconds to nanoseconds
+        self.pipeline.set_latency(new_latency)
 
         # Set pipeline to PLAYING state
         self.pipeline.set_state(Gst.State.PLAYING)
@@ -382,11 +398,79 @@ class GStreamerApp(ABC):
         self.loop.run()
 
         # Clean up
-        self.user_data.running = False
-        self.pipeline.set_state(Gst.State.NULL)
-        if self.options_menu.use_frame:
-            display_process.terminate()
-            display_process.join()
+        try:
+            self.user_data.running = False
+            self.pipeline.set_state(Gst.State.NULL)
+            if self.options_menu.use_frame:
+                display_process.terminate()
+                display_process.join()
+            for t in self.threads:
+                t.join()
+        except Exception as e:
+            print(f"Error during cleanup: {e}", file=sys.stderr)
+        finally:
+            if self.error_occurred:
+                print("Exiting with error...", file=sys.stderr)
+                sys.exit(1)
+            else:
+                print("Exiting...")
+                sys.exit(0)
+
+
+
+def picamera_thread(pipeline: Gst.Pipeline, video_width: int, video_height: int, video_format: str, picamera_config: Any = None) -> None:
+    appsrc = pipeline.get_by_name("app_source")
+    appsrc.set_property("is-live", True)
+    appsrc.set_property("format", Gst.Format.TIME)
+    print("appsrc properties: ", appsrc)
+    # Initialize Picamera2
+    with Picamera2() as picam2:
+        if picamera_config is None:
+            # Default configuration
+            main = {'size': (1280, 720), 'format': 'RGB888'}
+            lores = {'size': (video_width, video_height), 'format': 'RGB888'}
+            controls = {'FrameRate': 30}
+            config = picam2.create_preview_configuration(main=main, lores=lores, controls=controls)
+        else:
+            config = picamera_config
+        # Configure the camera with the created configuration
+        picam2.configure(config)
+        # Update GStreamer caps based on 'lores' stream
+        lores_stream = config['lores']
+        format_str = 'RGB' if lores_stream['format'] == 'RGB888' else video_format
+        width, height = lores_stream['size']
+        print(f"Picamera2 configuration: width={width}, height={height}, format={format_str}")
+        appsrc.set_property(
+            "caps",
+            Gst.Caps.from_string(
+                f"video/x-raw, format={format_str}, width={width}, height={height}, "
+                f"framerate=30/1, pixel-aspect-ratio=1/1"
+            )
+        )
+        picam2.start()
+        frame_count = 0
+        print("picamera_process started")
+        while True:
+            frame_data = picam2.capture_array('lores')
+            # frame_data = np.random.randint(0, 255, (height, width, 3), dtype=np.uint8)
+            if frame_data is None:
+                print("Failed to capture frame.")
+                break
+            # Convert framontigue data if necessary
+            frame = cv2.cvtColor(frame_data, cv2.COLOR_BGR2RGB)
+            frame = np.asarray(frame)
+            # Create Gst.Buffer by wrapping the frame data
+            buffer = Gst.Buffer.new_wrapped(frame.tobytes())
+            # Set buffer PTS and duration
+            buffer_duration = Gst.util_uint64_scale_int(1, Gst.SECOND, 30)
+            buffer.pts = frame_count * buffer_duration
+            buffer.duration = buffer_duration
+            # Push the buffer to appsrc
+            ret = appsrc.emit('push-buffer', buffer)
+            if ret != Gst.FlowReturn.OK:
+                print("Failed to push buffer:", ret)
+                break
+            frame_count += 1
 
 
 # ---------------------------------------------------------
