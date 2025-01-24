@@ -43,9 +43,6 @@ class GStreamerDetectionApp(GStreamerApp):
         # Additional initialization code can be added here
         # Set Hailo parameters these parameters should be set based on the model used
         self.batch_size = 2
-        self.network_width = 640
-        self.network_height = 640
-        self.network_format = "RGB"
         nms_score_threshold = 0.3
         nms_iou_threshold = 0.45
 
@@ -75,6 +72,7 @@ class GStreamerDetectionApp(GStreamerApp):
         self.post_process_so = os.path.join(
             self.current_path, "../resources/libyolo_hailortpp_postprocess.so"
         )
+        self.post_function_name = "filter_letterbox"
 
         # User-defined label JSON file
         self.labels_json = args.labels_json
@@ -93,14 +91,17 @@ class GStreamerDetectionApp(GStreamerApp):
         self.create_pipeline()
 
     def get_pipeline_string(self) -> str:
-        source_pipeline = SOURCE_PIPELINE(self.video_source)
+        source_pipeline = SOURCE_PIPELINE(self.video_source, self.video_width, self.video_height)
         detection_pipeline = INFERENCE_PIPELINE(
             hef_path=self.hef_path,
             post_process_so=self.post_process_so,
+            post_function_name=self.post_function_name,
             batch_size=self.batch_size,
             config_json=self.labels_json,
             additional_params=self.thresholds_str,
         )
+        detection_pipeline_wrapper = INFERENCE_PIPELINE_WRAPPER(detection_pipeline)
+        tracker_pipeline = TRACKER_PIPELINE(class_id=1)
         user_callback_pipeline = USER_CALLBACK_PIPELINE()
         display_pipeline = DISPLAY_PIPELINE(
             video_sink=self.video_sink,
@@ -110,10 +111,11 @@ class GStreamerDetectionApp(GStreamerApp):
         )
 
         pipeline_string = (
-            f"{source_pipeline}"
-            f"{detection_pipeline}"
-            f"{user_callback_pipeline}"
-            f"{display_pipeline}"
+            f'{source_pipeline} ! '
+            f'{detection_pipeline_wrapper} ! '
+            f'{tracker_pipeline} ! '
+            f'{user_callback_pipeline} ! '
+            f'{display_pipeline}'
         )
         print(pipeline_string)
         return pipeline_string
