@@ -268,7 +268,7 @@ def INFERENCE_PIPELINE_WRAPPER(
         f"hailoaggregator name={name}_agg "
         f'{name}_crop. ! {QUEUE(max_size_buffers=bypass_max_size_buffers, name=f"{name}_bypass_q")} ! {name}_agg.sink_0 '
         f"{name}_crop. ! {inner_pipeline} {name}_agg.sink_1 "
-        f'{name}_agg. ! {QUEUE(name=f"{name}_output_q")}'
+        f'{name}_agg. ! {QUEUE(name=f"{name}_output_q")} '
     )
 
     return inference_wrapper_pipeline

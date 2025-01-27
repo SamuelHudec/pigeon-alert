@@ -67,6 +67,7 @@ default time out is 3590 seconds.
 - mail warning with hyper-parameters set in config
 - add bounding box area as new parameter for detecting a bird sitting on balcony or flying close to it
 - add logging
+- update 24.1.2025 to current version
 
 ## Notes
 

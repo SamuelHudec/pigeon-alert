@@ -180,6 +180,10 @@ def get_default_parser() -> argparse.ArgumentParser:
         help="Dump the pipeline graph to a dot file pipeline.dot",
     )
     parser.add_argument(
+        "--disable-callback", action="store_true",
+        help="Disables the user's custom callback function in the pipeline. Use this option to run the pipeline without invoking the callback logic."
+    )
+    parser.add_argument(
         "--set-time", "-t", type=int, default=None, help="Timer in seconds."
     )
     parser.add_argument(
