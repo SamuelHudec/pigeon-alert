@@ -1,13 +1,17 @@
 import logging
 import os
+import sys
 import time
 from collections import deque
 from datetime import datetime
 
 import cv2
 import gi
-import hailo
 import yagmail
+try:
+    import hailo
+except ImportError:
+    sys.exit("Failed to import hailo python module. Make sure you are in hailo virtual environment.")
 
 from config import config
 
